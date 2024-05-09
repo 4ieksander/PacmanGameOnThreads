@@ -4,10 +4,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import pl.app.animations.*;
+import pl.app.ui.GamePanel;
 
 
 public class PacmanGame extends JFrame {
 
+    private GamePanel gamePanel;
     private JLabel scoreLabel, timeLabel, livesLabel;
     private int score = 0, lives = 3, time = 0;
     private Thread timeThread, scoreThread, livesThread;
@@ -17,10 +19,12 @@ public class PacmanGame extends JFrame {
         boardSize = boardSize;
         setTitle("Pacman");
         setSize(800, 600);
+        gamePanel = new GamePanel();
+        add(gamePanel, BorderLayout.CENTER);
+
+        pack();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
-
         initUI();
         initThreads();
     }
@@ -39,7 +43,6 @@ public class PacmanGame extends JFrame {
         setLayout(new BorderLayout());
         PacmanAnimation pacmanAnimation = new PacmanAnimation();
         add(pacmanAnimation, BorderLayout.CENTER); //
-
         add(infoPanel, BorderLayout.NORTH);
 
 
