@@ -4,19 +4,20 @@ public class Pacman {
     private int x, y; // Pozycje Pacmana na planszy
     private Board board;
 
-    public Pacman(Board board) {
-        this.board = board;
+    public Pacman() {
         this.x = 1; // startowa pozycja x
         this.y = 1; // startowa pozycja y
     }
 
-    public void move(int dx, int dy) {
-        if (board.getTile(x + dx, y + dy) != 1) { // Jeżeli nie ma ściany, to ruch jest możliwy
-            x += dx;
-            y += dy;
+    public void move(int dx, int dy, Board board) {
+        int newX = x + dx;
+        int newY = y + dy;
+        // Sprawdź, czy na nowej pozycji nie ma ściany
+        if (!board.isWall(newX, newY)) {
+            x = newX;
+            y = newY;
         }
     }
-
     public int getX() {
         return x;
     }

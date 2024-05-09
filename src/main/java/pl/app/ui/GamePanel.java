@@ -5,8 +5,10 @@ import pl.app.models.Pacman;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 
-public class GamePanel extends JPanel {
+public class GamePanel extends JPanel implements KeyListener {
     private Board board;
     private Pacman pacman;
     private final int tileWidth = 20;  // szerokość kafelka
@@ -14,8 +16,10 @@ public class GamePanel extends JPanel {
 
     public GamePanel() {
         this.board = new Board();
-        this.pacman = new Pacman(board);
+        this.pacman = new Pacman();
         setPreferredSize(new Dimension(400, 450)); // Rozmiar okna gry
+        setFocusable(true);
+        addKeyListener(this);
         // Inne inicjalizacje
     }
 
@@ -38,5 +42,31 @@ public class GamePanel extends JPanel {
         // Rysowanie Pacmana
         g.setColor(Color.YELLOW);
         g.fillArc(pacman.getX(), pacman.getY(), tileWidth, tileHeight, 0, 360);
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
+        switch (key) {
+            case KeyEvent.VK_LEFT:
+                pacman.move(-20, 0, board); // zakładając, że 20 to rozmiar jednego kafelka
+                break;
+            case KeyEvent.VK_RIGHT:
+                pacman.move(20, 0, board);
+                break;
+            case KeyEvent.VK_UP:
+                pacman.move(0, -20, board);
+                break;
+            case KeyEvent.VK_DOWN:
+                pacman.move(0, 20, board);
+                break;
+        }
+        repaint();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 }

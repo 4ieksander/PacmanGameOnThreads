@@ -41,8 +41,8 @@ public class PacmanGame extends JFrame {
         infoPanel.add(timeLabel);
         infoPanel.add(livesLabel);
         setLayout(new BorderLayout());
-        PacmanAnimation pacmanAnimation = new PacmanAnimation();
-        add(pacmanAnimation, BorderLayout.CENTER); //
+//        PacmanAnimation pacmanAnimation = new PacmanAnimation();
+//        add(pacmanAnimation, BorderLayout.CENTER); //
         add(infoPanel, BorderLayout.NORTH);
 
 

@@ -1,32 +1,31 @@
 package pl.app.models;
 
 public class Board {
-    private final int rows = 20; // liczba wierszy
-    private final int cols = 20; // liczba kolumn
-    private int[][] map = new int[rows][cols];
-
-    public Board() {
-        // 0 - puste miejsce, 1 - ściana, 2 - punkt
-        // Załaduj tutaj mapę, np. z pliku lub statycznie zdefiniowanej
-    }
+    private int[][] tiles = {
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1},
+            {1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1},
+            {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+            // i tak dalej...
+    };
 
     public int getTile(int x, int y) {
-        return map[x][y];
+        return tiles[x][y];
     }
 
     public int getRows() {
-        return rows;
+        return tiles.length;
     }
 
     public int getCols() {
-        return cols;
+        return tiles[0].length;
     }
-
-    public int[][] getMap() {
-        return map;
-    }
-
-    public void setMap(int[][] map) {
-        this.map = map;
+    public boolean isWall(int x, int y) {
+        // Logika sprawdzająca czy dane współrzędne x, y są ścianą
+        return false; // Na potrzeby przykładu
     }
 }
