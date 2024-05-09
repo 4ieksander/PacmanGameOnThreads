@@ -1,5 +1,4 @@
 package pl.app;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,51 +6,78 @@ import java.awt.event.ActionListener;
 
 public class PacmanGame extends JFrame {
 
-    private JPanel cards; // panel that uses CardLayout
-    final static String MENUPANEL = "Menu Panel";
-    final static String GAMEPANEL = "Game Panel";
+    private JLabel scoreLabel, timeLabel, livesLabel;
+    private int score = 0, lives = 3, time = 0;
+    private Thread timeThread, scoreThread, livesThread;
 
     public PacmanGame() {
         setTitle("Pacman");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // center the window
+        setLocationRelativeTo(null);
         initUI();
+        initThreads();
     }
 
     private void initUI() {
-        cards = new JPanel(new CardLayout());
+        setLayout(new BorderLayout());
+        JPanel infoPanel = new JPanel(new GridLayout(1, 3));
 
-        JPanel menuPanel = new JPanel();
-        menuPanel.add(createButton("New Game", GAMEPANEL));
-        menuPanel.add(createButton("High Scores", null)); // Placeholder, no action
-        menuPanel.add(createButton("Exit", null));
+        scoreLabel = new JLabel("Score: " + score);
+        timeLabel = new JLabel("Time: " + time);
+        livesLabel = new JLabel("Lives: " + lives);
 
-        JPanel gamePanel = new JPanel();
-        gamePanel.setBackground(Color.BLACK);
-        // Initialize your game panel here
+        infoPanel.add(scoreLabel);
+        infoPanel.add(timeLabel);
+        infoPanel.add(livesLabel);
 
-        cards.add(menuPanel, MENUPANEL);
-        cards.add(gamePanel, GAMEPANEL);
-
-        getContentPane().add(cards, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.NORTH);
     }
 
-    private JButton createButton(String text, String card) {
-        JButton button = new JButton(text);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (card != null) {
-                    CardLayout cl = (CardLayout)(cards.getLayout());
-                    cl.show(cards, card);
-                } else if (text.equals("Exit")) {
-                    System.exit(0);
+    private void initThreads() {
+        timeThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(1000);
+                    SwingUtilities.invokeLater(() -> {
+                        time++;
+                        timeLabel.setText("Time: " + time);
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-                // add more conditions as needed
             }
         });
-        return button;
+
+        scoreThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(100); // Możesz dostosować częstotliwość aktualizacji punktów
+                    SwingUtilities.invokeLater(() -> {
+                        scoreLabel.setText("Score: " + score);
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        livesThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(500); // Możesz dostosować, kiedy to aktualizować
+                    SwingUtilities.invokeLater(() -> {
+                        livesLabel.setText("Lives: " + lives);
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        timeThread.start();
+        scoreThread.start();
+        livesThread.start();
     }
 
     public static void main(String[] args) {
