@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import pl.app.animations.*;
+
 
 public class PacmanGame extends JFrame {
 
@@ -17,6 +19,8 @@ public class PacmanGame extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+
         initUI();
         initThreads();
     }
@@ -32,8 +36,13 @@ public class PacmanGame extends JFrame {
         infoPanel.add(scoreLabel);
         infoPanel.add(timeLabel);
         infoPanel.add(livesLabel);
+        setLayout(new BorderLayout());
+        PacmanAnimation pacmanAnimation = new PacmanAnimation();
+        add(pacmanAnimation, BorderLayout.CENTER); //
 
         add(infoPanel, BorderLayout.NORTH);
+
+
     }
 
     private void initThreads() {
