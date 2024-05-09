@@ -66,7 +66,7 @@ public class PacmanMenu extends JFrame {
             JButton sizeButton = new JButton(size);
             sizeButton.addActionListener(e -> {
                 boardSizeFrame.dispose(); // Zamknij okno po wyborze
-                // Tutaj możesz utworzyć nową instancję PacmanGame z wybranym rozmiarem
+                new PacmanGame(size).setVisible(true);
                 // new PacmanGame(size).setVisible(true);
             });
             panel.add(sizeButton);

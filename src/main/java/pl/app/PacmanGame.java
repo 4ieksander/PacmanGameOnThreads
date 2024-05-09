@@ -9,8 +9,10 @@ public class PacmanGame extends JFrame {
     private JLabel scoreLabel, timeLabel, livesLabel;
     private int score = 0, lives = 3, time = 0;
     private Thread timeThread, scoreThread, livesThread;
+    private String boardSize;
 
-    public PacmanGame() {
+    public PacmanGame(String boardSize) {
+        boardSize = boardSize;
         setTitle("Pacman");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -82,7 +84,7 @@ public class PacmanGame extends JFrame {
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
-            PacmanGame ex = new PacmanGame();
+            PacmanGame ex = new PacmanGame("Small");
             ex.setVisible(true);
         });
     }
