@@ -13,7 +13,7 @@ public class PacmanMenu extends JFrame {
 
     public PacmanMenu() {
         setTitle("Pacman");
-        setSize(800, 600);
+        setSize(300, 200);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // center the window
         initUI();
@@ -23,18 +23,57 @@ public class PacmanMenu extends JFrame {
         cards = new JPanel(new CardLayout());
 
         JPanel menuPanel = new JPanel();
-        menuPanel.add(createButton("New Game", GAMEPANEL));
-        menuPanel.add(createButton("High Scores", null)); // Placeholder, no action
-        menuPanel.add(createButton("Exit", null));
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showBoardSizeOptions();
+            }
+        });
+
+        JButton highScoreButton = new JButton("High Score");
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> System.exit(0));
 
         JPanel gamePanel = new JPanel();
         gamePanel.setBackground(Color.BLACK);
         // Initialize your game panel here
 
+
+        menuPanel.add(newGameButton, MENUPANEL);
+        menuPanel.add(highScoreButton, null); // Placeholder, no action
+        menuPanel.add(exitButton, MENUPANEL);
+
         cards.add(menuPanel, MENUPANEL);
         cards.add(gamePanel, GAMEPANEL);
 
         getContentPane().add(cards, BorderLayout.CENTER);
+    }
+
+    private void showBoardSizeOptions() {
+        JFrame boardSizeFrame = new JFrame("Choose Board Size");
+        boardSizeFrame.setSize(350, 400);
+        boardSizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        boardSizeFrame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(5, 1, 10, 10));
+
+        // Dodaj przyciski dla różnych rozmiarów plansz
+        String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
+        for (String size : boardSizes) {
+            JButton sizeButton = new JButton(size);
+            sizeButton.addActionListener(e -> {
+                boardSizeFrame.dispose(); // Zamknij okno po wyborze
+                // Tutaj możesz utworzyć nową instancję PacmanGame z wybranym rozmiarem
+                // new PacmanGame(size).setVisible(true);
+            });
+            panel.add(sizeButton);
+        }
+
+        boardSizeFrame.add(panel);
+        boardSizeFrame.setVisible(true);
     }
 
     private JButton createButton(String text, String card) {
