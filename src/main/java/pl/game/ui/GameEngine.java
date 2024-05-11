@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import javax.swing.*;
 
-import pl.game.game.subclasses.*;
+import pl.game.subclasses.*;
 import pl.game.subclasses.PowerUp;
 
 public class GameEngine extends JPanel implements ActionListener {
@@ -49,6 +49,8 @@ public class GameEngine extends JPanel implements ActionListener {
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
 
+    private int DEFAULT_GHOST_START_X = 5;
+    private int DEFAULT_GHOST_START_Y = 5;
 
     public GameEngine(short[] levelData, int N_BLOCKS) {
         this.N_BLOCKS = N_BLOCKS;
@@ -72,8 +74,7 @@ public class GameEngine extends JPanel implements ActionListener {
         screenData = new short[N_BLOCKS * N_BLOCKS];
         System.out.println("Screen Data Length: " + screenData.length);
         System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
-        screenData = new short[N_BLOCKS * N_BLOCKS];
-        dimension = new Dimension(400, 400);
+        dimension = new Dimension(SCREEN_SIZE+40, SCREEN_SIZE+40);
         ghostPosX = new int[MAX_GHOSTS];
         ghostDirX = new int[MAX_GHOSTS];
         ghostPosY = new int[MAX_GHOSTS];
@@ -180,7 +181,7 @@ public class GameEngine extends JPanel implements ActionListener {
             ghostSpeed[i] = validSpeeds[random];
         }
         pacmanPosX = 7 * BLOCK_SIZE;
-        pacmanPosY = 11 * BLOCK_SIZE;
+        pacmanPosY = 10 * BLOCK_SIZE;
         PacmanDirX = 0;
         PacmanDirY = 0;
         tempDirX = 0;
@@ -195,14 +196,19 @@ public class GameEngine extends JPanel implements ActionListener {
         short i;
         int pos;
         int count;
-
         for (i = 0; i < N_GHOSTS; i++) {
             if (ghostPosX[i] % BLOCK_SIZE == 0 && ghostPosY[i] % BLOCK_SIZE == 0) {
                 pos = ghostPosX[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghostPosY[i] / BLOCK_SIZE);
-
                 count = 0;
 
+                if (pos < 0 || pos > N_BLOCKS*N_BLOCKS-1){
+                    System.out.println("POS" + pos);
+                    System.out.println("I" + i);
+                    resetGhostPosition(i);
+                    continue;
+                }
                 if ((screenData[pos] & 1) == 0 && ghostDirX[i] != 1) {
+
                     ghostMoveOptionX[count] = -1;
                     ghostMoveOptionY[count] = 0;
                     count++;
@@ -263,6 +269,46 @@ public class GameEngine extends JPanel implements ActionListener {
         }
     }
 
+    private void resetGhostPosition(int ghostIndex) {
+        // Możesz także wybrać losową bezpieczną lokalizację z dostępnych
+        ghostPosX[ghostIndex] = DEFAULT_GHOST_START_X;
+        ghostPosY[ghostIndex] = DEFAULT_GHOST_START_Y;
+        ghostDirX[ghostIndex] = 0; // Zatrzymaj ruch duszka w kierunku X
+        ghostDirY[ghostIndex] = 0; // Zatrzymaj ruch duszka w kierunku Y
+    }
+
+    private boolean canMove(int x, int y) {
+        if (x < 0 || y < 0 || x >= N_BLOCKS * BLOCK_SIZE || y >= N_BLOCKS * BLOCK_SIZE) {
+            return false;
+        }
+        int index = x / BLOCK_SIZE + N_BLOCKS * (y / BLOCK_SIZE);
+        if (index < 0 || index >= screenData.length) {
+            return false;
+        }
+        return screenData[index] == 0;
+    }
+
+
+    private void selectNewDirection(int ghostIndex) {
+        int[] possibleDirections = new int[]{-1, 0, 1};
+        boolean moved = false;
+
+        while (!moved) {
+            int dirX = possibleDirections[(int) (Math.random() * 3)];
+            int dirY = possibleDirections[(int) (Math.random() * 3)];
+            if (dirX != 0 && dirY != 0) {
+                continue;
+            }
+
+            int nextX = ghostPosX[ghostIndex] + dirX * BLOCK_SIZE;
+            int nextY = ghostPosY[ghostIndex] + dirY * BLOCK_SIZE;
+            if (canMove(nextX, nextY)) {
+                ghostDirX[ghostIndex] = dirX;
+                ghostDirY[ghostIndex] = dirY;
+                moved = true;
+            }
+        }
+    }
 
     private void movePacman() {
         int pos;
@@ -358,6 +404,26 @@ public class GameEngine extends JPanel implements ActionListener {
         return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
                 .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
     }
+//    private boolean isValidLocation(int x, int y) {
+//
+//        if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) {
+//            return false;
+//        }
+//        int index = x / BLOCK_SIZE + N_BLOCKS * (y / BLOCK_SIZE);
+//
+//        if (index < 0 || index >= screenData.length) {
+//            resetEnemyPosition();
+//            return false;
+//        }
+//        else
+//        {
+//        return screenData[index] == 0;
+//    }}
+//    private void resetEnemyPosition() {
+//        // Zakładamy, że masz zdefiniowane domyślne współrzędne startowe dla wroga
+//        enemyX = DEFAULT_ENEMY_START_X;
+//        enemyY = DEFAULT_ENEMY_START_Y;
+//    }
 
 
     @Override

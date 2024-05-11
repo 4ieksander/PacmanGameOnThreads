@@ -16,6 +16,9 @@ public class PacmanGame extends JFrame {
 
     private void initUI() {
         add(new GameEngine(board.getLevelData(), board.getN_BLOCKS()));
+        int screen = GameEngine.BLOCK_SIZE * board.getN_BLOCKS();
+        System.out.println(board.getN_BLOCKS());
+        System.out.println(screen);
         setTitle("Pacman - " + board.getName());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(board.getSCREEN_SIZE()+20, board.getSCREEN_SIZE()+60);

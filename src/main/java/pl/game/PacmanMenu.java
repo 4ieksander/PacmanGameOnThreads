@@ -1,7 +1,7 @@
 package pl.game;
 
 import pl.game.boards.LargeBoard;
-import pl.game.game.boards.*;
+import pl.game.boards.*;
 import pl.game.ui.PacmanGame;
 import pl.game.interfaces.IBoard;
 

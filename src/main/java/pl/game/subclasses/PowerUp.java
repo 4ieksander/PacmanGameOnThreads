@@ -24,6 +24,7 @@ public class PowerUp {
     }
 
     public void activate() {
+        System.out.println("PowerUp activated "+ type.name());
         switch (type) {
             case SUPER_SPEED:
                 boostSpeedTemporarily();

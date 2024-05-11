@@ -1,10 +1,10 @@
 package pl.game.boards;
 
-import pl.game.ui.GameEngine;
 import pl.game.interfaces.IBoard;
+import pl.game.ui.GameEngine;
 
 public class LargeBoard implements IBoard {
-    private String name = "Large Board";
+    private final String name = "Large Board";
     private final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = GameEngine.BLOCK_SIZE * N_BLOCKS;
     private final short[] levelData = {
@@ -18,14 +18,19 @@ public class LargeBoard implements IBoard {
             25, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
+            0, 17, 24, 24, 24, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 17, 18, 18, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             0, 25, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
-
-
     };
+
+    public LargeBoard() {
+    }
+    @Override
+    public int getSCREEN_SIZE(){
+        return SCREEN_SIZE;
+    }
 
     @Override
     public short[]getLevelData(){
@@ -35,11 +40,6 @@ public class LargeBoard implements IBoard {
     @Override
     public int getN_BLOCKS(){
         return N_BLOCKS;
-    }
-
-    @Override
-    public int getSCREEN_SIZE(){
-        return SCREEN_SIZE;
     }
 
     @Override
