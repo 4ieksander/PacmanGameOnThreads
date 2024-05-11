@@ -15,11 +15,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 
 public class GameEngine extends JPanel implements ActionListener {
+    private Thread gameThread;
 
     private Dimension d;
     private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
@@ -77,8 +76,16 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private int currentSpeed = 3;
     private short[] screenData;
-    private Timer timer;
 
+    public void boostSpeedPermamently() {
+        if (currentSpeed < maxSpeed) {
+            currentSpeed++;
+        }
+    }
+
+    public void boosSpeedTemporarily(){
+
+    }
     public GameEngine() {
         loadAndScaleImages();
         initVariables();
@@ -96,7 +103,6 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void initVariables() {
-
         screenData = new short[N_BLOCKS * N_BLOCKS];
         mazeColor = new Color(5, 100, 5);
         d = new Dimension(400, 400);
@@ -108,9 +114,22 @@ public class GameEngine extends JPanel implements ActionListener {
         ghostMoveOptionX = new int[4];
         ghostMoveOptionY = new int[4];
 
-        timer = new Timer(40, this);
-        timer.start();
+        startGameThread();
     }
+    private void startGameThread() {
+        gameThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SwingUtilities.invokeLater(() -> repaint());
+                    Thread.sleep(40);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        gameThread.start();
+    }
+
 
     @Override
     public void addNotify() {
@@ -141,7 +160,7 @@ public class GameEngine extends JPanel implements ActionListener {
         g.setColor(Color.white);
         g.drawRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
 
-        String s = "Press s to start.";
+        String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = this.getFontMetrics(small);
 
@@ -188,9 +207,7 @@ public class GameEngine extends JPanel implements ActionListener {
                 N_GHOSTS++;
             }
 
-            if (currentSpeed < maxSpeed) {
-                currentSpeed++;
-            }
+
 
             initLevel();
         }
@@ -508,29 +525,28 @@ public class GameEngine extends JPanel implements ActionListener {
             int key = e.getKeyCode();
 
             if (inGame) {
-                if (key == KeyEvent.VK_LEFT) {
-                    tempDirX = -1;
-                    tempDirY = 0;
-                } else if (key == KeyEvent.VK_RIGHT) {
-                    tempDirX = 1;
-                    tempDirY = 0;
-                } else if (key == KeyEvent.VK_UP) {
-                    tempDirX = 0;
-                    tempDirY = -1;
-                } else if (key == KeyEvent.VK_DOWN) {
-                    tempDirX = 0;
-                    tempDirY = 1;
-                } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
-                    inGame = false;
-                } else if (key == KeyEvent.VK_PAUSE) {
-                    if (timer.isRunning()) {
-                        timer.stop();
-                    } else {
-                        timer.start();
-                    }
+                switch (key) {
+                    case KeyEvent.VK_LEFT:
+                        tempDirX = -1;
+                        tempDirY = 0;
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        tempDirX = 1;
+                        tempDirY = 0;
+                        break;
+                    case KeyEvent.VK_UP:
+                        tempDirX = 0;
+                        tempDirY = -1;
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        tempDirX = 0;
+                        tempDirY = 1;
+                        break;
+                    default:
+                        break;
                 }
             } else {
-                if (key == 's' || key == 'S') {
+                if (key == KeyEvent.VK_SPACE || key == KeyEvent.VK_ENTER) {
                     inGame = true;
                     initGame();
                 }
