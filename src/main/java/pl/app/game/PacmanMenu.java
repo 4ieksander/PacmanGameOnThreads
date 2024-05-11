@@ -1,6 +1,9 @@
 package pl.app.game;
 
+import pl.app.game.PacmanGame;
 import pl.app.game.GameEngine;
+import pl.app.game.boards.*;
+import pl.app.interfaces.IBoard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +12,7 @@ import java.awt.event.ActionListener;
 
 public class PacmanMenu extends JFrame {
 
+    private IBoard board;
     private JPanel cards; // panel that uses CardLayout
     final static String MENUPANEL = "Menu Panel";
     final static String GAMEPANEL = "Game Panel";
@@ -62,18 +66,46 @@ public class PacmanMenu extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(5, 1, 10, 10));
 
-        String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
+        String[] boardSizes = {"Extra Small", "Small", "Medium", "Large", "Extra Large"};
         for (String size : boardSizes) {
             JButton sizeButton = new JButton(size);
             sizeButton.addActionListener(e -> {
+                selectBoard(size);
                 boardSizeFrame.dispose();
-                new PacmanGame().setVisible(true);
             });
             panel.add(sizeButton);
         }
 
         boardSizeFrame.add(panel);
         boardSizeFrame.setVisible(true);
+    }
+
+    private void selectBoard(String size) {
+        switch (size) {
+            case "Extra Small":
+                break;
+            case "Small":
+                break;
+            case "Medium":
+                break;
+            case "Large":
+                board = new LargeBoard();
+                break;
+            case "Extra Large":
+                break;
+            default:
+                board = new LargeBoard();
+                System.out.println("Invalid size, here should be exception");
+        }
+        runGame();
+    }
+
+    private void runGame(){
+        EventQueue.invokeLater(() -> {
+
+            var ex = new PacmanGame(board);
+            ex.setVisible(true);
+        });
     }
 
     private JButton createButton(String text, String card) {
@@ -97,6 +129,4 @@ public class PacmanMenu extends JFrame {
         EventQueue.invokeLater(() -> {
             PacmanMenu ex = new PacmanMenu();
             ex.setVisible(true);
-        });
-    }
-}
+        });}}
