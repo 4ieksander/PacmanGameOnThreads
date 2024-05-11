@@ -24,7 +24,6 @@ public class GameEngine extends JPanel implements ActionListener {
     private Dimension d;
     private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
 
-    private Image ii;
     private final Color dotColor = new Color(192, 192, 0);
     private Color mazeColor;
 
@@ -34,18 +33,15 @@ public class GameEngine extends JPanel implements ActionListener {
     private final int BLOCK_SIZE = 24;
     private final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
-    private final int PAC_ANIM_DELAY = 2;
-    private final int PACMAN_ANIM_COUNT = 4;
+    private final int PAC_ANIM_DELAY = 200;
+    private final int PACMAN_IMAGES_COUNT = 4;
     private final int MAX_GHOSTS = 12;
     private final int PACMAN_SPEED = 6;
 
-    private int pacAnimCount = PAC_ANIM_DELAY;
-    private int pacAnimDir = 1;
-    private int pacmanAnimPos = 0;
     private int N_GHOSTS = 6;
-    private int pacsLeft, score;
-    private int[] dx, dy;
-    private int[] ghost_x, ghost_y, ghost_dx, ghost_dy, ghostSpeed;
+    private int livesLeft, score;
+    private int[] ghostMoveOptionX, ghostMoveOptionY;
+    private int[] ghostPosX, ghostPosY, ghostDirX, ghostDirY, ghostSpeed;
 
     private int currentImageNumber = 0;
 
@@ -55,8 +51,8 @@ public class GameEngine extends JPanel implements ActionListener {
     private ImageIcon[] pacmanLeft;
     private ImageIcon[] pacmanRight;
 
-    private int pacman_x, pacman_y, pacmand_x, pacmand_y;
-    private int shift_x, shift_y, view_dx, view_dy;
+    private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
+    private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
     private final short[] levelData = {
             19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
@@ -104,13 +100,13 @@ public class GameEngine extends JPanel implements ActionListener {
         screenData = new short[N_BLOCKS * N_BLOCKS];
         mazeColor = new Color(5, 100, 5);
         d = new Dimension(400, 400);
-        ghost_x = new int[MAX_GHOSTS];
-        ghost_dx = new int[MAX_GHOSTS];
-        ghost_y = new int[MAX_GHOSTS];
-        ghost_dy = new int[MAX_GHOSTS];
+        ghostPosX = new int[MAX_GHOSTS];
+        ghostDirX = new int[MAX_GHOSTS];
+        ghostPosY = new int[MAX_GHOSTS];
+        ghostDirY = new int[MAX_GHOSTS];
         ghostSpeed = new int[MAX_GHOSTS];
-        dx = new int[4];
-        dy = new int[4];
+        ghostMoveOptionX = new int[4];
+        ghostMoveOptionY = new int[4];
 
         timer = new Timer(40, this);
         timer.start();
@@ -121,20 +117,6 @@ public class GameEngine extends JPanel implements ActionListener {
         super.addNotify();
 
         initGame();
-    }
-
-    private void doAnim() {
-
-        pacAnimCount--;
-
-        if (pacAnimCount <= 0) {
-            pacAnimCount = PAC_ANIM_DELAY;
-            pacmanAnimPos = pacmanAnimPos + pacAnimDir;
-
-            if (pacmanAnimPos == (PACMAN_ANIM_COUNT - 1) || pacmanAnimPos == 0) {
-                pacAnimDir = -pacAnimDir;
-            }
-        }
     }
 
     private void playGame(Graphics2D g) {
@@ -178,7 +160,7 @@ public class GameEngine extends JPanel implements ActionListener {
         s = "Score: " + score;
         g.drawString(s, SCREEN_SIZE / 2 + 96, SCREEN_SIZE + 16);
 
-        for (i = 0; i < pacsLeft; i++) {
+        for (i = 0; i < livesLeft; i++) {
 //            g.drawImage(ghost, i * 28 + 8, SCREEN_SIZE + 1, this);
             ghost.paintIcon(this, g, i * 28 + 8, SCREEN_SIZE +1);
         }
@@ -216,9 +198,9 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private void death() {
 
-        pacsLeft--;
+        livesLeft--;
 
-        if (pacsLeft == 0) {
+        if (livesLeft == 0) {
             inGame = false;
         }
 
@@ -232,43 +214,43 @@ public class GameEngine extends JPanel implements ActionListener {
         int count;
 
         for (i = 0; i < N_GHOSTS; i++) {
-            if (ghost_x[i] % BLOCK_SIZE == 0 && ghost_y[i] % BLOCK_SIZE == 0) {
-                pos = ghost_x[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghost_y[i] / BLOCK_SIZE);
+            if (ghostPosX[i] % BLOCK_SIZE == 0 && ghostPosY[i] % BLOCK_SIZE == 0) {
+                pos = ghostPosX[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghostPosY[i] / BLOCK_SIZE);
 
                 count = 0;
 
-                if ((screenData[pos] & 1) == 0 && ghost_dx[i] != 1) {
-                    dx[count] = -1;
-                    dy[count] = 0;
+                if ((screenData[pos] & 1) == 0 && ghostDirX[i] != 1) {
+                    ghostMoveOptionX[count] = -1;
+                    ghostMoveOptionY[count] = 0;
                     count++;
                 }
 
-                if ((screenData[pos] & 2) == 0 && ghost_dy[i] != 1) {
-                    dx[count] = 0;
-                    dy[count] = -1;
+                if ((screenData[pos] & 2) == 0 && ghostDirY[i] != 1) {
+                    ghostMoveOptionX[count] = 0;
+                    ghostMoveOptionY[count] = -1;
                     count++;
                 }
 
-                if ((screenData[pos] & 4) == 0 && ghost_dx[i] != -1) {
-                    dx[count] = 1;
-                    dy[count] = 0;
+                if ((screenData[pos] & 4) == 0 && ghostDirX[i] != -1) {
+                    ghostMoveOptionX[count] = 1;
+                    ghostMoveOptionY[count] = 0;
                     count++;
                 }
 
-                if ((screenData[pos] & 8) == 0 && ghost_dy[i] != -1) {
-                    dx[count] = 0;
-                    dy[count] = 1;
+                if ((screenData[pos] & 8) == 0 && ghostDirY[i] != -1) {
+                    ghostMoveOptionX[count] = 0;
+                    ghostMoveOptionY[count] = 1;
                     count++;
                 }
 
                 if (count == 0) {
 
                     if ((screenData[pos] & 15) == 15) {
-                        ghost_dx[i] = 0;
-                        ghost_dy[i] = 0;
+                        ghostDirX[i] = 0;
+                        ghostDirY[i] = 0;
                     } else {
-                        ghost_dx[i] = -ghost_dx[i];
-                        ghost_dy[i] = -ghost_dy[i];
+                        ghostDirX[i] = -ghostDirX[i];
+                        ghostDirY[i] = -ghostDirY[i];
                     }
 
                 } else {
@@ -279,18 +261,18 @@ public class GameEngine extends JPanel implements ActionListener {
                         count = 3;
                     }
 
-                    ghost_dx[i] = dx[count];
-                    ghost_dy[i] = dy[count];
+                    ghostDirX[i] = ghostMoveOptionX[count];
+                    ghostDirY[i] = ghostMoveOptionY[count];
                 }
 
             }
 
-            ghost_x[i] = ghost_x[i] + (ghost_dx[i] * ghostSpeed[i]);
-            ghost_y[i] = ghost_y[i] + (ghost_dy[i] * ghostSpeed[i]);
-            drawGhost(g, ghost_x[i] + 1, ghost_y[i] + 1);
+            ghostPosX[i] = ghostPosX[i] + (ghostDirX[i] * ghostSpeed[i]);
+            ghostPosY[i] = ghostPosY[i] + (ghostDirY[i] * ghostSpeed[i]);
+            drawGhost(g, ghostPosX[i] + 1, ghostPosY[i] + 1);
 
-            if (pacman_x > (ghost_x[i] - 12) && pacman_x < (ghost_x[i] + 12)
-                    && pacman_y > (ghost_y[i] - 12) && pacman_y < (ghost_y[i] + 12)
+            if (pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12)
+                    && pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12)
                     && inGame) {
 
                 dying = true;
@@ -307,15 +289,15 @@ public class GameEngine extends JPanel implements ActionListener {
         int pos;
         short ch;
 
-        if (shift_x == -pacmand_x && shift_y == -pacmand_y) {
-            pacmand_x = shift_x;
-            pacmand_y = shift_y;
-            view_dx = pacmand_x;
-            view_dy = pacmand_y;
+        if (tempDirX == -PacmanDirX && tempDirY == -PacmanDirY) {
+            PacmanDirX = tempDirX;
+            PacmanDirY = tempDirY;
+            viewDirectionX = PacmanDirX;
+            viewDirectionY = PacmanDirY;
         }
 
-        if (pacman_x % BLOCK_SIZE == 0 && pacman_y % BLOCK_SIZE == 0) {
-            pos = pacman_x / BLOCK_SIZE + N_BLOCKS * (int) (pacman_y / BLOCK_SIZE);
+        if (pacmanPosX % BLOCK_SIZE == 0 && pacmanPosY % BLOCK_SIZE == 0) {
+            pos = pacmanPosX / BLOCK_SIZE + N_BLOCKS * (int) (pacmanPosY / BLOCK_SIZE);
             ch = screenData[pos];
 
             if ((ch & 16) != 0) {
@@ -323,52 +305,52 @@ public class GameEngine extends JPanel implements ActionListener {
                 score++;
             }
 
-            if (shift_x != 0 || shift_y != 0) {
-                if (!((shift_x == -1 && shift_y == 0 && (ch & 1) != 0)
-                        || (shift_x == 1 && shift_y == 0 && (ch & 4) != 0)
-                        || (shift_x == 0 && shift_y == -1 && (ch & 2) != 0)
-                        || (shift_x == 0 && shift_y == 1 && (ch & 8) != 0))) {
-                    pacmand_x = shift_x;
-                    pacmand_y = shift_y;
-                    view_dx = pacmand_x;
-                    view_dy = pacmand_y;
+            if (tempDirX != 0 || tempDirY != 0) {
+                if (!((tempDirX == -1 && tempDirY == 0 && (ch & 1) != 0)
+                        || (tempDirX == 1 && tempDirY == 0 && (ch & 4) != 0)
+                        || (tempDirX == 0 && tempDirY == -1 && (ch & 2) != 0)
+                        || (tempDirX == 0 && tempDirY == 1 && (ch & 8) != 0))) {
+                    PacmanDirX = tempDirX;
+                    PacmanDirY = tempDirY;
+                    viewDirectionX = PacmanDirX;
+                    viewDirectionY = PacmanDirY;
                 }
             }
 
             // Check for standstill
-            if ((pacmand_x == -1 && pacmand_y == 0 && (ch & 1) != 0)
-                    || (pacmand_x == 1 && pacmand_y == 0 && (ch & 4) != 0)
-                    || (pacmand_x == 0 && pacmand_y == -1 && (ch & 2) != 0)
-                    || (pacmand_x == 0 && pacmand_y == 1 && (ch & 8) != 0)) {
-                pacmand_x = 0;
-                pacmand_y = 0;
+            if ((PacmanDirX == -1 && PacmanDirY == 0 && (ch & 1) != 0)
+                    || (PacmanDirX == 1 && PacmanDirY == 0 && (ch & 4) != 0)
+                    || (PacmanDirX == 0 && PacmanDirY == -1 && (ch & 2) != 0)
+                    || (PacmanDirX == 0 && PacmanDirY == 1 && (ch & 8) != 0)) {
+                PacmanDirX = 0;
+                PacmanDirY = 0;
             }
         }
-        pacman_x = pacman_x + PACMAN_SPEED * pacmand_x;
-        pacman_y = pacman_y + PACMAN_SPEED * pacmand_y;
+        pacmanPosX = pacmanPosX + PACMAN_SPEED * PacmanDirX;
+        pacmanPosY = pacmanPosY + PACMAN_SPEED * PacmanDirY;
     }
 
     private void drawPacman(Graphics2D g) {
-        if (view_dx == -1) {
+        if (viewDirectionX == -1) {
             ImageIcon currentIcon = pacmanLeft[currentImageNumber];
-            currentIcon.paintIcon(this, g, pacman_x -1, pacman_y);
-        } else if (view_dx == 1) {
+            currentIcon.paintIcon(this, g, pacmanPosX -1, pacmanPosY);
+        } else if (viewDirectionX == 1) {
             ImageIcon currentIcon = pacmanRight[currentImageNumber];
-            currentIcon.paintIcon(this, g, pacman_x +1, pacman_y);
-        } else if (view_dy == -1) {
+            currentIcon.paintIcon(this, g, pacmanPosX +1, pacmanPosY);
+        } else if (viewDirectionY == -1) {
             ImageIcon currentIcon = pacmanUp[currentImageNumber];
-            currentIcon.paintIcon(this, g, pacman_x, pacman_y -1);
+            currentIcon.paintIcon(this, g, pacmanPosX, pacmanPosY -1);
         } else {
             ImageIcon currentIcon = pacmanDown[currentImageNumber];
-            currentIcon.paintIcon(this, g, pacman_x, pacman_y +1);
+            currentIcon.paintIcon(this, g, pacmanPosX, pacmanPosY +1);
         }
     }
     private void startAnimation() {
         Thread animationThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    currentImageNumber = (currentImageNumber + 1) % 4;
-                    Thread.sleep(200);
+                    currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
+                    Thread.sleep(PAC_ANIM_DELAY);
                     repaint();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -419,7 +401,7 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private void initGame() {
 
-        pacsLeft = 3;
+        livesLeft = 3;
         score = 0;
         initLevel();
         N_GHOSTS = 6;
@@ -444,10 +426,10 @@ public class GameEngine extends JPanel implements ActionListener {
 
         for (i = 0; i < N_GHOSTS; i++) {
 
-            ghost_y[i] = 4 * BLOCK_SIZE;
-            ghost_x[i] = 4 * BLOCK_SIZE;
-            ghost_dy[i] = 0;
-            ghost_dx[i] = dx;
+            ghostPosY[i] = 4 * BLOCK_SIZE;
+            ghostPosX[i] = 4 * BLOCK_SIZE;
+            ghostDirY[i] = 0;
+            ghostDirX[i] = dx;
             dx = -dx;
             random = (int) (Math.random() * (currentSpeed + 1));
 
@@ -458,14 +440,14 @@ public class GameEngine extends JPanel implements ActionListener {
             ghostSpeed[i] = validSpeeds[random];
         }
 
-        pacman_x = 7 * BLOCK_SIZE;
-        pacman_y = 11 * BLOCK_SIZE;
-        pacmand_x = 0;
-        pacmand_y = 0;
-        shift_x = 0;
-        shift_y = 0;
-        view_dx = -1;
-        view_dy = 0;
+        pacmanPosX = 7 * BLOCK_SIZE;
+        pacmanPosY = 11 * BLOCK_SIZE;
+        PacmanDirX = 0;
+        PacmanDirY = 0;
+        tempDirX = 0;
+        tempDirY = 0;
+        viewDirectionX = -1;
+        viewDirectionY = 0;
         dying = false;
     }
 
@@ -507,7 +489,6 @@ public class GameEngine extends JPanel implements ActionListener {
 
         drawMaze(graphics);
         drawScore(graphics);
-        doAnim();
 
         if (inGame) {
             playGame(graphics);
@@ -515,7 +496,6 @@ public class GameEngine extends JPanel implements ActionListener {
             showIntroScreen(graphics);
         }
 
-        g.drawImage(ii, 5, 5, this);
         Toolkit.getDefaultToolkit().sync();
         g.dispose();
     }
@@ -529,17 +509,17 @@ public class GameEngine extends JPanel implements ActionListener {
 
             if (inGame) {
                 if (key == KeyEvent.VK_LEFT) {
-                    shift_x = -1;
-                    shift_y = 0;
+                    tempDirX = -1;
+                    tempDirY = 0;
                 } else if (key == KeyEvent.VK_RIGHT) {
-                    shift_x = 1;
-                    shift_y = 0;
+                    tempDirX = 1;
+                    tempDirY = 0;
                 } else if (key == KeyEvent.VK_UP) {
-                    shift_x = 0;
-                    shift_y = -1;
+                    tempDirX = 0;
+                    tempDirY = -1;
                 } else if (key == KeyEvent.VK_DOWN) {
-                    shift_x = 0;
-                    shift_y = 1;
+                    tempDirX = 0;
+                    tempDirY = 1;
                 } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
                     inGame = false;
                 } else if (key == KeyEvent.VK_PAUSE) {
@@ -564,8 +544,8 @@ public class GameEngine extends JPanel implements ActionListener {
 
             if (key == Event.LEFT || key == Event.RIGHT
                     || key == Event.UP || key == Event.DOWN) {
-                shift_x = 0;
-                shift_y = 0;
+                tempDirX = 0;
+                tempDirY = 0;
             }
         }
     }
