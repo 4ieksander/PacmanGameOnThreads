@@ -1,7 +1,7 @@
-package pl.app.game.boards;
+package pl.game.boards;
 
-import pl.app.game.GameEngine;
-import pl.app.interfaces.IBoard;
+import pl.game.ui.GameEngine;
+import pl.game.interfaces.IBoard;
 
 public class LargeBoard implements IBoard {
     private String name = "Large Board";

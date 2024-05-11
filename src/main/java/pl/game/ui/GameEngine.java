@@ -1,4 +1,4 @@
-package pl.app.game;
+package pl.game.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,7 +13,8 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import javax.swing.*;
 
-import pl.app.game.subclasses.*;
+import pl.game.game.subclasses.*;
+import pl.game.subclasses.PowerUp;
 
 public class GameEngine extends JPanel implements ActionListener {
     public static final int BLOCK_SIZE = 24;
@@ -28,8 +29,6 @@ public class GameEngine extends JPanel implements ActionListener {
     private boolean inGame = false;
     private boolean dying = false;
 
-
-
     private final int MAX_GHOSTS = 12;
     private final int PACMAN_SPEED = 6;
 
@@ -41,38 +40,14 @@ public class GameEngine extends JPanel implements ActionListener {
     public int N_BLOCKS;
     private int SCREEN_SIZE;
 
-
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
-
-//    private final short[] levelData = {
-//            19, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 22,
-//            21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20,
-//            21, 0, 24, 24, 24, 24, 24, 24, 16, 24, 24, 24, 16, 24, 24, 24, 24, 24, 0, 20,
-//            21, 0, 16, 0, 0, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0, 0, 16, 0, 20,
-//            21, 0, 16, 0, 24, 18, 18, 22, 16, 24, 18, 18, 20, 0, 24, 18, 22, 16, 0, 20,
-//            21, 0, 16, 0, 0, 17, 16, 20, 16, 0, 17, 16, 20, 0, 0, 17, 20, 16, 0, 20,
-//            21, 0, 16, 0, 0, 17, 16, 20, 16, 0, 17, 16, 20, 0, 0, 17, 20, 16, 0, 20,
-//            21, 0, 16, 24, 24, 24, 24, 28, 24, 24, 24, 24, 28, 24, 24, 24, 24, 16, 0, 20,
-//            21, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 20,
-//            21, 0, 16, 0, 24, 24, 24, 24, 24, 0, 24, 24, 24, 24, 24, 0, 16, 16, 0, 20,
-//            21, 0, 16, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 16, 16, 0, 20,
-//            21, 0, 16, 0, 16, 0, 24, 18, 22, 0, 19, 18, 22, 0, 16, 0, 16, 16, 0, 20,
-//            21, 0, 16, 0, 16, 0, 0, 17, 20, 0, 17, 20, 0, 0, 16, 0, 16, 16, 0, 20,
-//            21, 0, 16, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 16, 16, 0, 20,
-//            21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20,
-//            17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 20,
-//            25, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
-//    };
 
     private final int[] validSpeeds = {1, 2, 3, 4, 6, 8};
     private int currentSpeed = 3;
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
-
-
-
 
 
     public GameEngine(short[] levelData, int N_BLOCKS) {
@@ -83,7 +58,6 @@ public class GameEngine extends JPanel implements ActionListener {
         initVariables();
         initBoard();
     }
-
 
 
     private void initBoard() {
@@ -121,39 +95,11 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void initLevel() {
-
         int i;
         for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
             screenData[i] = levelData[i];
         }
-
         continueLevel();
-    }
-    private short calculateLevelDataAt(int x, int y) {
-        // Define wall and dot presence using bitwise operations (similar to your existing scheme):
-        // 1 = Wall on the left, 2 = Wall on top, 4 = Wall on the right, 8 = Wall on bottom, 16 = Dot
-        short result = 0;
-
-        // Add walls around the edges of the map
-        if (x == 0) { // Left edge
-            result |= 1; // Adding a wall on the left
-        }
-        if (y == 0) { // Top edge
-            result |= 2; // Adding a wall on the top
-        }
-        if (x == N_BLOCKS - 1) { // Right edge
-            result |= 4; // Adding a wall on the right
-        }
-        if (y == N_BLOCKS - 1) { // Bottom edge
-            result |= 8; // Adding a wall on the bottom
-        }
-
-        // Add a dot randomly in other places
-        if (x > 0 && x < N_BLOCKS - 1 && y > 0 && y < N_BLOCKS - 1) {
-            result |= 16; // Adding a dot
-        }
-
-        return result;
     }
 
     private void startGameThread() {
@@ -185,61 +131,6 @@ public class GameEngine extends JPanel implements ActionListener {
         g.dispose();
     }
 
-
-    private void startPowerUpGenerator() {
-        Thread powerUpGenerator = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    Thread.sleep(500);
-                    for (int i = 0; i < N_GHOSTS; i++) {
-                        if (rand.nextInt(4) == 0) {
-                            int posX = ghostPosX[i] / BLOCK_SIZE;
-                            int posY = ghostPosY[i] / BLOCK_SIZE;
-                            if (isValidLocation(posX, posY)) {
-                                createPowerUp(posX, posY);
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        powerUpGenerator.start();
-    }
-
-
-
-    // Boosters
-    private void createPowerUp(int posX, int posY) {
-        PowerUp.Type type = PowerUp.Type.values()[rand.nextInt(PowerUp.Type.values().length)];
-        if (isValidLocation(posX, posY)) { // second checking
-            PowerUp newPowerUp = new PowerUp(type, posX * BLOCK_SIZE, posY * BLOCK_SIZE, this);
-            SwingUtilities.invokeLater(() -> {
-                activePowerUps.add(newPowerUp);
-                repaint();
-            });
-        }
-    }
-
-    private void checkForPowerUps(int x, int y) {
-        List<PowerUp> collected = new ArrayList<>();
-        for (PowerUp powerUp : activePowerUps) {
-            if (powerUp.getPosX() == x && powerUp.getPosY() == y && powerUp.isActive()) {
-                powerUp.activate();
-                collected.add(powerUp);
-            }
-        }
-        activePowerUps.removeAll(collected);
-    }
-
-    private boolean isValidLocation(int x, int y) {
-        return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
-                .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
-    }
-
-
-
     private void playGame(Graphics2D g) {
         if (dying) {
             death();
@@ -261,15 +152,7 @@ public class GameEngine extends JPanel implements ActionListener {
             }
             i++;
         }
-
-        if (finished) {
-            score += 50;
-            if (N_GHOSTS < MAX_GHOSTS) {
-                N_GHOSTS++;
-            }
-
-            initLevel();
-        }
+//            initLevel();
     }
 
     private void death() {
@@ -426,6 +309,57 @@ public class GameEngine extends JPanel implements ActionListener {
         pacmanPosY = pacmanPosY + PACMAN_SPEED * PacmanDirY;
     }
 
+    // Boosters
+    private void startPowerUpGenerator() {
+        Thread powerUpGenerator = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(500);
+                    for (int i = 0; i < N_GHOSTS; i++) {
+                        if (rand.nextInt(4) == 0) {
+                            int posX = ghostPosX[i] / BLOCK_SIZE;
+                            int posY = ghostPosY[i] / BLOCK_SIZE;
+                            if (isValidLocation(posX, posY)) {
+                                createPowerUp(posX, posY);
+                            }
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        powerUpGenerator.start();
+    }
+
+    private void createPowerUp(int posX, int posY) {
+        PowerUp.Type type = PowerUp.Type.values()[rand.nextInt(PowerUp.Type.values().length)];
+        if (isValidLocation(posX, posY)) { // second checking
+            PowerUp newPowerUp = new PowerUp(type, posX * BLOCK_SIZE, posY * BLOCK_SIZE, this);
+            SwingUtilities.invokeLater(() -> {
+                activePowerUps.add(newPowerUp);
+                repaint();
+            });
+        }
+    }
+
+    private void checkForPowerUps(int x, int y) {
+        List<PowerUp> collected = new ArrayList<>();
+        for (PowerUp powerUp : activePowerUps) {
+            if (powerUp.getPosX() == x && powerUp.getPosY() == y && powerUp.isActive()) {
+                powerUp.activate();
+                collected.add(powerUp);
+            }
+        }
+        activePowerUps.removeAll(collected);
+    }
+
+    private boolean isValidLocation(int x, int y) {
+        return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
+                .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
+    }
+
+
     @Override
     public void actionPerformed(ActionEvent e) {
         repaint();
@@ -440,7 +374,6 @@ public class GameEngine extends JPanel implements ActionListener {
     @Override
     public void addNotify() {
         super.addNotify();
-
         initGame();
     }
 

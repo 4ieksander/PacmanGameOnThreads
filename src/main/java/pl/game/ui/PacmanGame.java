@@ -1,7 +1,7 @@
-package pl.app.game;
+package pl.game.ui;
 
-import pl.app.game.boards.LargeBoard;
-import pl.app.interfaces.IBoard;
+import pl.game.boards.LargeBoard;
+import pl.game.interfaces.IBoard;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;

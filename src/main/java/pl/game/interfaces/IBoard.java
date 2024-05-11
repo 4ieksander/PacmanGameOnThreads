@@ -1,4 +1,4 @@
-package pl.app.interfaces;
+package pl.game.interfaces;
 
 
 // This map is the representation of 5 binary bits in the decimal system

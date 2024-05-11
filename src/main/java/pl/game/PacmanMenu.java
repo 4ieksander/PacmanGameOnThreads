@@ -1,9 +1,9 @@
-package pl.app.game;
+package pl.game;
 
-import pl.app.game.PacmanGame;
-import pl.app.game.GameEngine;
-import pl.app.game.boards.*;
-import pl.app.interfaces.IBoard;
+import pl.game.boards.LargeBoard;
+import pl.game.game.boards.*;
+import pl.game.ui.PacmanGame;
+import pl.game.interfaces.IBoard;
 
 import javax.swing.*;
 import java.awt.*;

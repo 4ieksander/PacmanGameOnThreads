@@ -1,4 +1,4 @@
-package pl.app.animations;
+package pl.game.animations;
 
 import javax.swing.*;
 import java.awt.*;

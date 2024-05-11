@@ -1,4 +1,4 @@
-package pl.app.game.boards;
+package pl.game.boards;
 
 public class ExtraLargeBoard {
     private final short[] levelData = {
