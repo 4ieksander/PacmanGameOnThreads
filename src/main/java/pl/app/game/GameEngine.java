@@ -15,11 +15,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.*;
-
-
 import javax.swing.*;
 
+import pl.app.game.subclasses.*;
+
 public class GameEngine extends JPanel implements ActionListener {
+
     private Thread gameThread;
     private boolean isInvulnerable = false;
 
@@ -86,156 +87,23 @@ public class GameEngine extends JPanel implements ActionListener {
 
 
 
-    public class PowerUp {
-        public enum Type {
-            SUPER_SPEED, FREEZE, EXTRA_LIFE, INVULNERABILITY, SLOW_GHOSTS
-        }
-
-        Type type;
-        int posX;
-        int posY;
-        boolean isActive;
-        Random random = new Random();
-
-        public PowerUp(Type type, int posX, int posY) {
-            this.type = type;
-            this.posX = posX;
-            this.posY = posY;
-            this.isActive = true;
-        }
-
-        public void activate() {
-            switch (type) {
-                case SUPER_SPEED:
-                    boostSpeedTemporarily();
-                    break;
-                case FREEZE:
-                    freezeGhosts();
-                    break;
-                case EXTRA_LIFE:
-                    grantExtraLife();
-                    break;
-                case INVULNERABILITY:
-                    makePacmanInvulnerable();
-                    break;
-                case SLOW_GHOSTS:
-                    slowDownGhosts();
-                    break;
-            }
-            isActive = false;
-        }
-
-        private void boostSpeedTemporarily() {
-            currentSpeed += 3;
-            new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                currentSpeed -= 3;
-            }).start();
-        }
-
-        private void freezeGhosts() {
-            for (int i = 0; i < ghostSpeed.length; i++) {
-                ghostSpeed[i] = 0;
-            }
-            new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                resetGhostSpeed();
-            }).start();
-        }
-
-        private void grantExtraLife() {
-            livesLeft++;
-        }
-
-        private void makePacmanInvulnerable() {
-            isInvulnerable = true;
-            new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                isInvulnerable = false;
-            }).start();
-        }
-
-        private void slowDownGhosts() {
-            for (int i = 0; i < ghostSpeed.length; i++) {
-                ghostSpeed[i] = Math.max(1, ghostSpeed[i] / 2);
-            }
-            new Thread(() -> {
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                resetGhostSpeed();
-            }).start();
-        }
-
-        private void resetGhostSpeed() {
-            for (int i = 0; i < ghostSpeed.length; i++) {
-                ghostSpeed[i] = validSpeeds[random.nextInt(validSpeeds.length)];
-            }
-        }
-    }
-
-    private void startPowerUpGenerator() {
-        Thread powerUpGenerator = new Thread(() -> {
+    // Threads
+    private void startAnimation() {
+        Thread animationThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    Thread.sleep(500);
-                    for (int i = 0; i < N_GHOSTS; i++) {
-                        if (rand.nextInt(4) == 0) {
-                            int posX = ghostPosX[i] / BLOCK_SIZE;
-                            int posY = ghostPosY[i] / BLOCK_SIZE;
-                            if (isValidLocation(posX, posY)) {
-                                createPowerUp(posX, posY);
-                            }
-                        }
-                    }
+                    currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
+                    Thread.sleep(PAC_ANIM_DELAY);
+                    repaint();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
         });
-        powerUpGenerator.start();
+        animationThread.start();
     }
 
 
-    private void createPowerUp(int posX, int posY) {
-        PowerUp.Type type = PowerUp.Type.values()[rand.nextInt(PowerUp.Type.values().length)];
-        if (isValidLocation(posX, posY)) { // second checking
-            PowerUp newPowerUp = new PowerUp(type, posX * BLOCK_SIZE, posY * BLOCK_SIZE);
-            SwingUtilities.invokeLater(() -> {
-                activePowerUps.add(newPowerUp);
-                repaint();
-            });
-        }
-    }
-
-    private void drawPowerUps(Graphics2D g) {
-        for (PowerUp powerUp : activePowerUps) {
-            if (powerUp.isActive) {
-                g.setColor(Color.MAGENTA);
-                g.fillRect(powerUp.posX, powerUp.posY, BLOCK_SIZE, BLOCK_SIZE);
-            }
-        }
-    }
-
-
-    private boolean isValidLocation(int x, int y) {
-        return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
-                .noneMatch(p -> p.posX == x * BLOCK_SIZE && p.posY == y * BLOCK_SIZE);
-    }
 
 
     public void boostSpeedPermamently() {
@@ -311,6 +179,54 @@ public class GameEngine extends JPanel implements ActionListener {
             }
         });
         gameThread.start();
+    }
+    private void startPowerUpGenerator() {
+        Thread powerUpGenerator = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(500);
+                    for (int i = 0; i < N_GHOSTS; i++) {
+                        if (rand.nextInt(4) == 0) {
+                            int posX = ghostPosX[i] / BLOCK_SIZE;
+                            int posY = ghostPosY[i] / BLOCK_SIZE;
+                            if (isValidLocation(posX, posY)) {
+                                createPowerUp(posX, posY);
+                            }
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        powerUpGenerator.start();
+    }
+
+
+    private void createPowerUp(int posX, int posY) {
+        PowerUp.Type type = PowerUp.Type.values()[rand.nextInt(PowerUp.Type.values().length)];
+        if (isValidLocation(posX, posY)) { // second checking
+            PowerUp newPowerUp = new PowerUp(type, posX * BLOCK_SIZE, posY * BLOCK_SIZE, this);
+            SwingUtilities.invokeLater(() -> {
+                activePowerUps.add(newPowerUp);
+                repaint();
+            });
+        }
+    }
+
+    private void drawPowerUps(Graphics2D g) {
+        for (PowerUp powerUp : activePowerUps) {
+            if (powerUp.isActive()) {
+                g.setColor(Color.MAGENTA);
+                g.fillRect(powerUp.getPosX(), powerUp.getPosY(), BLOCK_SIZE, BLOCK_SIZE);
+            }
+        }
+    }
+
+
+    private boolean isValidLocation(int x, int y) {
+        return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
+                .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
     }
 
 
@@ -569,13 +485,14 @@ public class GameEngine extends JPanel implements ActionListener {
     private void checkForPowerUps(int x, int y) {
         List<PowerUp> collected = new ArrayList<>();
         for (PowerUp powerUp : activePowerUps) {
-            if (powerUp.posX == x && powerUp.posY == y && powerUp.isActive) {
+            if (powerUp.getPosX() == x && powerUp.getPosY() == y && powerUp.isActive()) {
                 powerUp.activate();
                 collected.add(powerUp);
             }
         }
         activePowerUps.removeAll(collected);
     }
+
 
     private void drawPacman(Graphics2D g) {
         if (viewDirectionX == -1) {
@@ -594,20 +511,8 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
 
-    private void startAnimation() {
-        Thread animationThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
-                    Thread.sleep(PAC_ANIM_DELAY);
-                    repaint();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        animationThread.start();
-    }
+
+
 
     private void drawMaze(Graphics2D g) {
         int index = 0;
@@ -648,7 +553,6 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void initGame() {
-
         livesLeft = 3;
         score = 0;
         initLevel();
@@ -657,16 +561,37 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void initLevel() {
-
         int i;
         for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
             screenData[i] = levelData[i];
         }
-
         continueLevel();
     }
 
 
+    private void doDrawing(Graphics g) {
+        Graphics2D graphics = (Graphics2D) g;
+        g.setColor(Color.black);
+        g.fillRect(0, 0, d.width, d.height);
+
+        drawMaze(graphics);
+        drawScore(graphics);
+
+        if (inGame) {
+            playGame(graphics);
+        } else {
+            showIntroScreen(graphics);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+        g.dispose();
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        doDrawing(g);
+    }
 
     private void loadAndScaleImages() {
         Image ghost_not_Scaled = new ImageIcon("src/main/resources/images/Ghost.png").getImage();
@@ -691,28 +616,31 @@ public class GameEngine extends JPanel implements ActionListener {
         };
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        doDrawing(g);
+    public int[] getGhostSpeed() {
+        return ghostSpeed;
     }
 
-    private void doDrawing(Graphics g) {
-        Graphics2D graphics = (Graphics2D) g;
-        g.setColor(Color.black);
-        g.fillRect(0, 0, d.width, d.height);
 
-        drawMaze(graphics);
-        drawScore(graphics);
+    public void setGhostSpeed(int[] ghostSpeed) {
+        this.ghostSpeed = ghostSpeed;
+    }
+    public void setGhostSpeed(int id, int ghostSpeed) {
+        this.ghostSpeed[id] = id;
+    }
 
-        if (inGame) {
-            playGame(graphics);
-        } else {
-            showIntroScreen(graphics);
-        }
+    public int getCurrentSpeed(){
+        return currentSpeed;
+    }
+    public void setCurrentSpeed(int currentSpeed) {this.currentSpeed = currentSpeed;}
+    public void incresePacmanLifes(){
+        this.livesLeft++;
+    }
+    public void setInvulnerable(Boolean invulnerable){
+        this.isInvulnerable = invulnerable;
+    }
 
-        Toolkit.getDefaultToolkit().sync();
-        g.dispose();
+    public int[] getValidSpeeds() {
+        return validSpeeds;
     }
 
     class TAdapter extends KeyAdapter {
