@@ -48,21 +48,15 @@ public class GameEngine extends JPanel implements ActionListener {
     private int[] ghost_x, ghost_y, ghost_dx, ghost_dy, ghostSpeed;
 
     private int currentImageNumber = 0;
-    private ImageIcon[] images;
 
-    private String last_direction;
-    private Image ghost;
+    private ImageIcon ghost;
     private ImageIcon[] pacmanUp;
     private ImageIcon[] pacmanDown;
     private ImageIcon[] pacmanLeft;
     private ImageIcon[] pacmanRight;
 
-    private Image pacman1, pacman2up, pacman2left, pacman2right, pacman2down;
-    private Image pacman3up, pacman3down, pacman3left, pacman3right;
-    private Image pacman4up, pacman4down, pacman4left, pacman4right;
-
     private int pacman_x, pacman_y, pacmand_x, pacmand_y;
-    private int req_dx, req_dy, view_dx, view_dy;
+    private int shift_x, shift_y, view_dx, view_dy;
 
     private final short[] levelData = {
             19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
@@ -143,7 +137,7 @@ public class GameEngine extends JPanel implements ActionListener {
         }
     }
 
-    private void playGame(Graphics2D g2d) {
+    private void playGame(Graphics2D g) {
 
         if (dying) {
 
@@ -152,26 +146,26 @@ public class GameEngine extends JPanel implements ActionListener {
         } else {
 
             movePacman();
-            drawPacman(g2d);
-            moveGhosts(g2d);
+            drawPacman(g);
+            moveGhosts(g);
             checkMaze();
         }
     }
 
-    private void showIntroScreen(Graphics2D g2d) {
+    private void showIntroScreen(Graphics2D g) {
 
-        g2d.setColor(new Color(0, 32, 48));
-        g2d.fillRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
-        g2d.setColor(Color.white);
-        g2d.drawRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
+        g.setColor(new Color(0, 32, 48));
+        g.fillRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
+        g.setColor(Color.white);
+        g.drawRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
 
         String s = "Press s to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = this.getFontMetrics(small);
 
-        g2d.setColor(Color.white);
-        g2d.setFont(small);
-        g2d.drawString(s, (SCREEN_SIZE - metr.stringWidth(s)) / 2, SCREEN_SIZE / 2);
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(s, (SCREEN_SIZE - metr.stringWidth(s)) / 2, SCREEN_SIZE / 2);
     }
 
     private void drawScore(Graphics2D g) {
@@ -185,7 +179,8 @@ public class GameEngine extends JPanel implements ActionListener {
         g.drawString(s, SCREEN_SIZE / 2 + 96, SCREEN_SIZE + 16);
 
         for (i = 0; i < pacsLeft; i++) {
-            g.drawImage(pacman3left, i * 28 + 8, SCREEN_SIZE + 1, this);
+//            g.drawImage(ghost, i * 28 + 8, SCREEN_SIZE + 1, this);
+            ghost.paintIcon(this, g, i * 28 + 8, SCREEN_SIZE +1);
         }
     }
 
@@ -230,7 +225,7 @@ public class GameEngine extends JPanel implements ActionListener {
         continueLevel();
     }
 
-    private void moveGhosts(Graphics2D g2d) {
+    private void moveGhosts(Graphics2D g) {
 
         short i;
         int pos;
@@ -292,7 +287,7 @@ public class GameEngine extends JPanel implements ActionListener {
 
             ghost_x[i] = ghost_x[i] + (ghost_dx[i] * ghostSpeed[i]);
             ghost_y[i] = ghost_y[i] + (ghost_dy[i] * ghostSpeed[i]);
-            drawGhost(g2d, ghost_x[i] + 1, ghost_y[i] + 1);
+            drawGhost(g, ghost_x[i] + 1, ghost_y[i] + 1);
 
             if (pacman_x > (ghost_x[i] - 12) && pacman_x < (ghost_x[i] + 12)
                     && pacman_y > (ghost_y[i] - 12) && pacman_y < (ghost_y[i] + 12)
@@ -303,9 +298,8 @@ public class GameEngine extends JPanel implements ActionListener {
         }
     }
 
-    private void drawGhost(Graphics2D g2d, int x, int y) {
-
-        g2d.drawImage(ghost, x, y, this);
+    private void drawGhost(Graphics2D g, int x, int y) {
+        ghost.paintIcon(this, g, x, y);
     }
 
     private void movePacman() {
@@ -313,9 +307,9 @@ public class GameEngine extends JPanel implements ActionListener {
         int pos;
         short ch;
 
-        if (req_dx == -pacmand_x && req_dy == -pacmand_y) {
-            pacmand_x = req_dx;
-            pacmand_y = req_dy;
+        if (shift_x == -pacmand_x && shift_y == -pacmand_y) {
+            pacmand_x = shift_x;
+            pacmand_y = shift_y;
             view_dx = pacmand_x;
             view_dy = pacmand_y;
         }
@@ -329,13 +323,13 @@ public class GameEngine extends JPanel implements ActionListener {
                 score++;
             }
 
-            if (req_dx != 0 || req_dy != 0) {
-                if (!((req_dx == -1 && req_dy == 0 && (ch & 1) != 0)
-                        || (req_dx == 1 && req_dy == 0 && (ch & 4) != 0)
-                        || (req_dx == 0 && req_dy == -1 && (ch & 2) != 0)
-                        || (req_dx == 0 && req_dy == 1 && (ch & 8) != 0))) {
-                    pacmand_x = req_dx;
-                    pacmand_y = req_dy;
+            if (shift_x != 0 || shift_y != 0) {
+                if (!((shift_x == -1 && shift_y == 0 && (ch & 1) != 0)
+                        || (shift_x == 1 && shift_y == 0 && (ch & 4) != 0)
+                        || (shift_x == 0 && shift_y == -1 && (ch & 2) != 0)
+                        || (shift_x == 0 && shift_y == 1 && (ch & 8) != 0))) {
+                    pacmand_x = shift_x;
+                    pacmand_y = shift_y;
                     view_dx = pacmand_x;
                     view_dy = pacmand_y;
                 }
@@ -354,22 +348,21 @@ public class GameEngine extends JPanel implements ActionListener {
         pacman_y = pacman_y + PACMAN_SPEED * pacmand_y;
     }
 
-    private void drawPacman(Graphics2D graph) {
+    private void drawPacman(Graphics2D g) {
         if (view_dx == -1) {
             ImageIcon currentIcon = pacmanLeft[currentImageNumber];
-            currentIcon.paintIcon(this, graph, pacman_x -1, pacman_y);
+            currentIcon.paintIcon(this, g, pacman_x -1, pacman_y);
         } else if (view_dx == 1) {
             ImageIcon currentIcon = pacmanRight[currentImageNumber];
-            currentIcon.paintIcon(this, graph, pacman_x +1, pacman_y);
+            currentIcon.paintIcon(this, g, pacman_x +1, pacman_y);
         } else if (view_dy == -1) {
             ImageIcon currentIcon = pacmanUp[currentImageNumber];
-            currentIcon.paintIcon(this, graph, pacman_x, pacman_y -1);
+            currentIcon.paintIcon(this, g, pacman_x, pacman_y -1);
         } else {
             ImageIcon currentIcon = pacmanDown[currentImageNumber];
-            currentIcon.paintIcon(this, graph, pacman_x, pacman_y +1);
+            currentIcon.paintIcon(this, g, pacman_x, pacman_y +1);
         }
     }
-
     private void startAnimation() {
         Thread animationThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -385,7 +378,7 @@ public class GameEngine extends JPanel implements ActionListener {
         animationThread.start();
     }
 
-    private void drawMaze(Graphics2D g2d) {
+    private void drawMaze(Graphics2D g) {
 
         short i = 0;
         int x, y;
@@ -393,30 +386,30 @@ public class GameEngine extends JPanel implements ActionListener {
         for (y = 0; y < SCREEN_SIZE; y += BLOCK_SIZE) {
             for (x = 0; x < SCREEN_SIZE; x += BLOCK_SIZE) {
 
-                g2d.setColor(mazeColor);
-                g2d.setStroke(new BasicStroke(2));
+                g.setColor(mazeColor);
+                g.setStroke(new BasicStroke(2));
 
                 if ((screenData[i] & 1) != 0) {
-                    g2d.drawLine(x, y, x, y + BLOCK_SIZE - 1);
+                    g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
                 }
 
                 if ((screenData[i] & 2) != 0) {
-                    g2d.drawLine(x, y, x + BLOCK_SIZE - 1, y);
+                    g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
                 }
 
                 if ((screenData[i] & 4) != 0) {
-                    g2d.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1,
+                    g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1,
                             y + BLOCK_SIZE - 1);
                 }
 
                 if ((screenData[i] & 8) != 0) {
-                    g2d.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1,
+                    g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1,
                             y + BLOCK_SIZE - 1);
                 }
 
                 if ((screenData[i] & 16) != 0) {
-                    g2d.setColor(dotColor);
-                    g2d.fillRect(x + 11, y + 11, 2, 2);
+                    g.setColor(dotColor);
+                    g.fillRect(x + 11, y + 11, 2, 2);
                 }
 
                 i++;
@@ -469,15 +462,16 @@ public class GameEngine extends JPanel implements ActionListener {
         pacman_y = 11 * BLOCK_SIZE;
         pacmand_x = 0;
         pacmand_y = 0;
-        req_dx = 0;
-        req_dy = 0;
+        shift_x = 0;
+        shift_y = 0;
         view_dx = -1;
         view_dy = 0;
         dying = false;
     }
 
     private void loadAndScaleImages() {
-        ghost = new ImageIcon("src/main/resources/images/ghost.png").getImage();
+        Image ghost_not_Scaled = new ImageIcon("src/main/resources/images/Ghost.png").getImage();
+        ghost = new ImageIcon(ghost_not_Scaled.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
         pacmanUp = loadAndScalePacmanForDirection("up/Up");
         pacmanDown = loadAndScalePacmanForDirection("down/Down");
         pacmanRight = loadAndScalePacmanForDirection("right/Right");
@@ -491,10 +485,10 @@ public class GameEngine extends JPanel implements ActionListener {
         Image pacmanImg3 = new ImageIcon(pacmanIncompletePath+"3.png").getImage();
         Image pacmanImg4 = new ImageIcon(pacmanIncompletePath+"4.png").getImage();
         return new ImageIcon[] {
-                new ImageIcon(pacmanImg1.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-                new ImageIcon(pacmanImg2.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-                new ImageIcon(pacmanImg3.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-                new ImageIcon(pacmanImg4.getScaledInstance(22, 22, Image.SCALE_SMOOTH))
+                new ImageIcon(pacmanImg1.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg2.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg3.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg4.getScaledInstance(25, 25, Image.SCALE_SMOOTH))
         };
     }
 
@@ -506,24 +500,24 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private void doDrawing(Graphics g) {
 
-        Graphics2D g2d = (Graphics2D) g;
+        Graphics2D graphics = (Graphics2D) g;
 
-        g2d.setColor(Color.black);
-        g2d.fillRect(0, 0, d.width, d.height);
+        g.setColor(Color.black);
+        g.fillRect(0, 0, d.width, d.height);
 
-        drawMaze(g2d);
-        drawScore(g2d);
+        drawMaze(graphics);
+        drawScore(graphics);
         doAnim();
 
         if (inGame) {
-            playGame(g2d);
+            playGame(graphics);
         } else {
-            showIntroScreen(g2d);
+            showIntroScreen(graphics);
         }
 
-        g2d.drawImage(ii, 5, 5, this);
+        g.drawImage(ii, 5, 5, this);
         Toolkit.getDefaultToolkit().sync();
-        g2d.dispose();
+        g.dispose();
     }
 
     class TAdapter extends KeyAdapter {
@@ -535,17 +529,17 @@ public class GameEngine extends JPanel implements ActionListener {
 
             if (inGame) {
                 if (key == KeyEvent.VK_LEFT) {
-                    req_dx = -1;
-                    req_dy = 0;
+                    shift_x = -1;
+                    shift_y = 0;
                 } else if (key == KeyEvent.VK_RIGHT) {
-                    req_dx = 1;
-                    req_dy = 0;
+                    shift_x = 1;
+                    shift_y = 0;
                 } else if (key == KeyEvent.VK_UP) {
-                    req_dx = 0;
-                    req_dy = -1;
+                    shift_x = 0;
+                    shift_y = -1;
                 } else if (key == KeyEvent.VK_DOWN) {
-                    req_dx = 0;
-                    req_dy = 1;
+                    shift_x = 0;
+                    shift_y = 1;
                 } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
                     inGame = false;
                 } else if (key == KeyEvent.VK_PAUSE) {
@@ -570,8 +564,8 @@ public class GameEngine extends JPanel implements ActionListener {
 
             if (key == Event.LEFT || key == Event.RIGHT
                     || key == Event.UP || key == Event.DOWN) {
-                req_dx = 0;
-                req_dy = 0;
+                shift_x = 0;
+                shift_y = 0;
             }
         }
     }
