@@ -43,8 +43,8 @@ public class GameRender {
 
     public void drawMaze(Graphics2D g) {
         int index = 0;
-        for (int y = 0; y < game.SCREEN_SIZE; y += game.BLOCK_SIZE) {
-            for (int x = 0; x < game.SCREEN_SIZE; x += game.BLOCK_SIZE) {
+        for (int y = 0; y < game.getScreenSize(); y += game.BLOCK_SIZE) {
+            for (int x = 0; x < game.getScreenSize(); x += game.BLOCK_SIZE) {
                 g.setColor(mazeColor);
                 g.setStroke(new BasicStroke(2));
 
@@ -107,10 +107,10 @@ public class GameRender {
             g.setFont(smallFont);
             g.setColor(new Color(96, 128, 255));
             s = "Score: " + game.getScore();
-            g.drawString(s, game.SCREEN_SIZE / 2 + 96, game.SCREEN_SIZE + 16);
+            g.drawString(s, game.getScreenSize() / 2 + 96, game.getScreenSize() + 16);
 
             for (i = 0; i < game.getLivesLeft(); i++) {
-                ghost.paintIcon(game, g, i * 28 + 8, game.SCREEN_SIZE + 1);
+                ghost.paintIcon(game, g, i * 28 + 8, game.getScreenSize() + 1);
             }
         }
 
@@ -118,9 +118,9 @@ public class GameRender {
 
     public void showIntroScreen (Graphics2D g){
         g.setColor(new Color(0, 32, 48));
-        g.fillRect(50, game.SCREEN_SIZE / 2 - 30, game.SCREEN_SIZE - 100, 50);
+        g.fillRect(50, game.getScreenSize() / 2 - 30, game.getScreenSize() - 100, 50);
         g.setColor(Color.white);
-        g.drawRect(50, game.SCREEN_SIZE / 2 - 30, game.SCREEN_SIZE - 100, 50);
+        g.drawRect(50, game.getScreenSize() / 2 - 30, game.getScreenSize() - 100, 50);
 
         String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
@@ -128,7 +128,7 @@ public class GameRender {
 
         g.setColor(Color.white);
         g.setFont(small);
-        g.drawString(s, (game.SCREEN_SIZE - metr.stringWidth(s)) / 2, game.SCREEN_SIZE/ 2);
+        g.drawString(s, (game.getScreenSize() - metr.stringWidth(s)) / 2, game.getScreenSize()/ 2);
     }
 
 

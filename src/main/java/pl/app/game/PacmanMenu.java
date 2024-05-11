@@ -1,4 +1,6 @@
-package pl.app;
+package pl.app.game;
+
+import pl.app.game.GameEngine;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,14 +62,12 @@ public class PacmanMenu extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(5, 1, 10, 10));
 
-        // Dodaj przyciski dla różnych rozmiarów plansz
         String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
         for (String size : boardSizes) {
             JButton sizeButton = new JButton(size);
             sizeButton.addActionListener(e -> {
-                boardSizeFrame.dispose(); // Zamknij okno po wyborze
-                new PacmanGame(size).setVisible(true);
-                // new PacmanGame(size).setVisible(true);
+                boardSizeFrame.dispose();
+                new PacmanGame().setVisible(true);
             });
             panel.add(sizeButton);
         }

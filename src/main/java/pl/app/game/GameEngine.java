@@ -1,14 +1,10 @@
 package pl.app.game;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,19 +16,19 @@ import javax.swing.*;
 import pl.app.game.subclasses.*;
 
 public class GameEngine extends JPanel implements ActionListener {
+    public static final int BLOCK_SIZE = 24;
+
     private GameRender gameRender;
     private Thread gameThread;
     private boolean isInvulnerable = false;
 
-    private Dimension d;
+    private Dimension dimension;
 
     private Random rand = new Random();
     private boolean inGame = false;
     private boolean dying = false;
 
-    public final int BLOCK_SIZE = 24;
-    public final int N_BLOCKS = 15;
-    public final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
+
 
     private final int MAX_GHOSTS = 12;
     private final int PACMAN_SPEED = 6;
@@ -41,35 +37,36 @@ public class GameEngine extends JPanel implements ActionListener {
     private int livesLeft, score;
     private int[] ghostMoveOptionX, ghostMoveOptionY;
     private int[] ghostPosX, ghostPosY, ghostDirX, ghostDirY, ghostSpeed;
-
+    private short[] levelData;
+    public int N_BLOCKS;
+    private int SCREEN_SIZE;
 
 
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
-    // This map is the representation of 5 binary bits in the decimal system
-    // binary: 0, 0, 0, 0, 0 => point present, (walls) boottom, right, up, left
-    // ex. 26 (decimal) -> 1 1 0 1 0 (binary) -> point exists, bottom and up
-    private final short[] levelData = {
-            19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
-            21, 00, 00, 00, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 00, 00, 00, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 00, 00, 00, 17, 16, 16, 24, 16, 16, 16, 16, 16, 16, 20,
-            17, 18, 18, 18, 16, 16, 20, 00, 17, 16, 16, 16, 16, 16, 20,
-            17, 16, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 16, 24, 20,
-            25, 16, 16, 16, 24, 24, 28, 00, 25, 24, 24, 16, 20, 00, 21,
-            01, 17, 16, 20, 00, 00, 00, 00, 00, 00, 00, 17, 20, 00, 21,
-            01, 17, 16, 16, 18, 18, 22, 00, 19, 18, 18, 16, 20, 00, 21,
-            01, 17, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 20, 00, 21,
-            01, 17, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 20, 00, 21,
-            01, 17, 16, 16, 16, 16, 16, 18, 16, 16, 16, 16, 20, 00, 21,
-            01, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20, 00, 21,
-            01, 25, 24, 24, 24, 24, 24, 24, 24, 24, 16, 16, 16, 18, 20,
-            9,8, 8, 8, 8, 8, 8, 8, 8, 8, 25, 24, 24, 24, 28
-    };
+
+//    private final short[] levelData = {
+//            19, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 22,
+//            21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20,
+//            21, 0, 24, 24, 24, 24, 24, 24, 16, 24, 24, 24, 16, 24, 24, 24, 24, 24, 0, 20,
+//            21, 0, 16, 0, 0, 0, 0, 0, 16, 0, 0, 0, 16, 0, 0, 0, 0, 16, 0, 20,
+//            21, 0, 16, 0, 24, 18, 18, 22, 16, 24, 18, 18, 20, 0, 24, 18, 22, 16, 0, 20,
+//            21, 0, 16, 0, 0, 17, 16, 20, 16, 0, 17, 16, 20, 0, 0, 17, 20, 16, 0, 20,
+//            21, 0, 16, 0, 0, 17, 16, 20, 16, 0, 17, 16, 20, 0, 0, 17, 20, 16, 0, 20,
+//            21, 0, 16, 24, 24, 24, 24, 28, 24, 24, 24, 24, 28, 24, 24, 24, 24, 16, 0, 20,
+//            21, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 20,
+//            21, 0, 16, 0, 24, 24, 24, 24, 24, 0, 24, 24, 24, 24, 24, 0, 16, 16, 0, 20,
+//            21, 0, 16, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 16, 16, 0, 20,
+//            21, 0, 16, 0, 16, 0, 24, 18, 22, 0, 19, 18, 22, 0, 16, 0, 16, 16, 0, 20,
+//            21, 0, 16, 0, 16, 0, 0, 17, 20, 0, 17, 20, 0, 0, 16, 0, 16, 16, 0, 20,
+//            21, 0, 16, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 16, 16, 0, 20,
+//            21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20,
+//            17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 20,
+//            25, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
+//    };
 
     private final int[] validSpeeds = {1, 2, 3, 4, 6, 8};
-
     private int currentSpeed = 3;
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
@@ -78,29 +75,20 @@ public class GameEngine extends JPanel implements ActionListener {
 
 
 
-    public GameEngine() {
+    public GameEngine(short[] levelData, int N_BLOCKS) {
+        this.N_BLOCKS = N_BLOCKS;
+        this.levelData = levelData;
+         this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
         gameRender = new GameRender(this);
         initVariables();
         initBoard();
     }
 
 
-    private void startGameThread() {
-        gameThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SwingUtilities.invokeLater(this::repaint);
-                    Thread.sleep(40);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        gameThread.start();
-    }
-
 
     private void initBoard() {
+        setBackground(Color.black); // Ensure background is visible
+        System.out.println("Board size set to: " + SCREEN_SIZE + "x" + SCREEN_SIZE);
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.black);
@@ -108,7 +96,10 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private void initVariables() {
         screenData = new short[N_BLOCKS * N_BLOCKS];
-        d = new Dimension(400, 400);
+        System.out.println("Screen Data Length: " + screenData.length);
+        System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
+        screenData = new short[N_BLOCKS * N_BLOCKS];
+        dimension = new Dimension(400, 400);
         ghostPosX = new int[MAX_GHOSTS];
         ghostDirX = new int[MAX_GHOSTS];
         ghostPosY = new int[MAX_GHOSTS];
@@ -130,18 +121,60 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void initLevel() {
+
         int i;
         for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
             screenData[i] = levelData[i];
         }
+
         continueLevel();
+    }
+    private short calculateLevelDataAt(int x, int y) {
+        // Define wall and dot presence using bitwise operations (similar to your existing scheme):
+        // 1 = Wall on the left, 2 = Wall on top, 4 = Wall on the right, 8 = Wall on bottom, 16 = Dot
+        short result = 0;
+
+        // Add walls around the edges of the map
+        if (x == 0) { // Left edge
+            result |= 1; // Adding a wall on the left
+        }
+        if (y == 0) { // Top edge
+            result |= 2; // Adding a wall on the top
+        }
+        if (x == N_BLOCKS - 1) { // Right edge
+            result |= 4; // Adding a wall on the right
+        }
+        if (y == N_BLOCKS - 1) { // Bottom edge
+            result |= 8; // Adding a wall on the bottom
+        }
+
+        // Add a dot randomly in other places
+        if (x > 0 && x < N_BLOCKS - 1 && y > 0 && y < N_BLOCKS - 1) {
+            result |= 16; // Adding a dot
+        }
+
+        return result;
+    }
+
+    private void startGameThread() {
+        gameThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SwingUtilities.invokeLater(this::repaint);
+                    Thread.sleep(40);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        gameThread.start();
     }
 
 
     private void doDrawing(Graphics g) {
         Graphics2D graphics = (Graphics2D) g;
         g.setColor(Color.black);
-        g.fillRect(0, 0, d.width, d.height);
+        g.fillRect(0, 0, dimension.width, dimension.height);
         gameRender.render(graphics);
         if (inGame) {
             playGame(graphics);
@@ -349,17 +382,14 @@ public class GameEngine extends JPanel implements ActionListener {
 
 
     private void movePacman() {
-
         int pos;
         short ch;
-
         if (tempDirX == -PacmanDirX && tempDirY == -PacmanDirY) {
             PacmanDirX = tempDirX;
             PacmanDirY = tempDirY;
             viewDirectionX = PacmanDirX;
             viewDirectionY = PacmanDirY;
         }
-
         if (pacmanPosX % BLOCK_SIZE == 0 && pacmanPosY % BLOCK_SIZE == 0) {
             pos = pacmanPosX / BLOCK_SIZE + N_BLOCKS * (int) (pacmanPosY / BLOCK_SIZE);
             ch = screenData[pos];
@@ -462,6 +492,9 @@ public class GameEngine extends JPanel implements ActionListener {
     }
     public int getLivesLeft(){
         return livesLeft;
+    }
+    public int getScreenSize(){
+        return SCREEN_SIZE;
     }
 
     class TAdapter extends KeyAdapter {
