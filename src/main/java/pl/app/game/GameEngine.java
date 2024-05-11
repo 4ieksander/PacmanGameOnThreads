@@ -47,10 +47,16 @@ public class GameEngine extends JPanel implements ActionListener {
     private int[] dx, dy;
     private int[] ghost_x, ghost_y, ghost_dx, ghost_dy, ghostSpeed;
 
+    private int currentImageNumber = 0;
     private ImageIcon[] images;
-    private int currentImage = 0;
 
+    private String last_direction;
     private Image ghost;
+    private ImageIcon[] pacmanUp;
+    private ImageIcon[] pacmanDown;
+    private ImageIcon[] pacmanLeft;
+    private ImageIcon[] pacmanRight;
+
     private Image pacman1, pacman2up, pacman2left, pacman2right, pacman2down;
     private Image pacman3up, pacman3down, pacman3left, pacman3right;
     private Image pacman4up, pacman4down, pacman4left, pacman4right;
@@ -84,8 +90,7 @@ public class GameEngine extends JPanel implements ActionListener {
     private Timer timer;
 
     public GameEngine() {
-
-        loadImages();
+        loadAndScaleImages();
         initVariables();
         initBoard();
         startAnimation();
@@ -349,17 +354,19 @@ public class GameEngine extends JPanel implements ActionListener {
         pacman_y = pacman_y + PACMAN_SPEED * pacmand_y;
     }
 
-    private void drawPacman(Graphics2D g2d) {
-        ImageIcon currentIcon = images[currentImage];
-        currentIcon.paintIcon(this, g2d, pacman_x, pacman_y);
+    private void drawPacman(Graphics2D graph) {
         if (view_dx == -1) {
-            drawPacnanLeft(g2d);
+            ImageIcon currentIcon = pacmanLeft[currentImageNumber];
+            currentIcon.paintIcon(this, graph, pacman_x -1, pacman_y);
         } else if (view_dx == 1) {
-            drawPacmanRight(g2d);
+            ImageIcon currentIcon = pacmanRight[currentImageNumber];
+            currentIcon.paintIcon(this, graph, pacman_x +1, pacman_y);
         } else if (view_dy == -1) {
-            drawPacmanUp(g2d);
+            ImageIcon currentIcon = pacmanUp[currentImageNumber];
+            currentIcon.paintIcon(this, graph, pacman_x, pacman_y -1);
         } else {
-            drawPacmanDown(g2d);
+            ImageIcon currentIcon = pacmanDown[currentImageNumber];
+            currentIcon.paintIcon(this, graph, pacman_x, pacman_y +1);
         }
     }
 
@@ -367,89 +374,15 @@ public class GameEngine extends JPanel implements ActionListener {
         Thread animationThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    currentImage = (currentImage + 1) % images.length;
-                    repaint();
+                    currentImageNumber = (currentImageNumber + 1) % 4;
                     Thread.sleep(200);
+                    repaint();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
         });
         animationThread.start();
-    }
-
-
-
-    private void drawPacmanUp(Graphics2D g2d) {
-
-        switch (pacmanAnimPos) {
-            case 1:
-                g2d.drawImage(pacman2up, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 2:
-                g2d.drawImage(pacman3up, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 3:
-                g2d.drawImage(pacman4up, pacman_x + 1, pacman_y + 1, this);
-                break;
-            default:
-                g2d.drawImage(pacman1, pacman_x + 1, pacman_y + 1, this);
-                break;
-        }
-    }
-
-    private void drawPacmanDown(Graphics2D g2d) {
-
-        switch (pacmanAnimPos) {
-            case 1:
-                g2d.drawImage(pacman2down, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 2:
-                g2d.drawImage(pacman3down, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 3:
-                g2d.drawImage(pacman4down, pacman_x + 1, pacman_y + 1, this);
-                break;
-            default:
-                g2d.drawImage(pacman1, pacman_x + 1, pacman_y + 1, this);
-                break;
-        }
-    }
-
-    private void drawPacnanLeft(Graphics2D g2d) {
-
-        switch (pacmanAnimPos) {
-            case 1:
-                g2d.drawImage(pacman2left, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 2:
-                g2d.drawImage(pacman3left, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 3:
-                g2d.drawImage(pacman4left, pacman_x + 1, pacman_y + 1, this);
-                break;
-            default:
-                g2d.drawImage(pacman1, pacman_x + 1, pacman_y + 1, this);
-                break;
-        }
-    }
-
-    private void drawPacmanRight(Graphics2D g2d) {
-
-        switch (pacmanAnimPos) {
-            case 1:
-                g2d.drawImage(pacman2right, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 2:
-                g2d.drawImage(pacman3right, pacman_x + 1, pacman_y + 1, this);
-                break;
-            case 3:
-                g2d.drawImage(pacman4right, pacman_x + 1, pacman_y + 1, this);
-                break;
-            default:
-                g2d.drawImage(pacman1, pacman_x + 1, pacman_y + 1, this);
-                break;
-        }
     }
 
     private void drawMaze(Graphics2D g2d) {
@@ -543,45 +476,31 @@ public class GameEngine extends JPanel implements ActionListener {
         dying = false;
     }
 
-    private void loadImages() {
-        String directoryPacmanPng = System.getProperty("user.dir") + "\\src\\main\\resources\\PNG\\Pacman\\";
+    private void loadAndScaleImages() {
         ghost = new ImageIcon("src/main/resources/images/ghost.png").getImage();
-        Image pacman1b = new ImageIcon("src/main/resources/images/pacman/up/Up1.png").getImage();
+        pacmanUp = loadAndScalePacmanForDirection("up/Up");
+        pacmanDown = loadAndScalePacmanForDirection("down/Down");
+        pacmanRight = loadAndScalePacmanForDirection("right/Right");
+        pacmanLeft = loadAndScalePacmanForDirection("left/Left");
+    }
 
-        Image pacman2upb = new ImageIcon("src/main/resources/images/pacman/up/Up1.png").getImage();
-        Image pacman3upb = new ImageIcon("src/main/resources/images/pacman/up/Up2.png").getImage();
-        Image pacman4upb = new ImageIcon("src/main/resources/images/pacman/up/Up3.png").getImage();
-//        pacman1 = pacman1b.getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-//        pacman2up = pacman2upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-//        pacman3up = pacman3upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-//        pacman4up = pacman4upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-
-        images = new ImageIcon[] {
-            new ImageIcon(pacman1b.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-            new ImageIcon(pacman2upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-            new ImageIcon(pacman3upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
-            new ImageIcon(pacman4upb.getScaledInstance(22, 22, Image.SCALE_SMOOTH))
-                };
-//                new ImageIcon(directoryPacmanPng + "right\\Right2.png"),
-//                new ImageIcon(directoryPacmanPng + "right\\Right3.png"),
-//                new ImageIcon(directoryPacmanPng + "right\\Right4.png")
-
-
-        pacman2down = new ImageIcon("src/main/resources/images/down/Down1.png").getImage();
-        pacman3down = new ImageIcon("src/main/resources/images/down/Down2.png").getImage();
-        pacman4down = new ImageIcon("src/main/resources/images/down/Down3.png").getImage();
-        pacman2left = new ImageIcon("src/main/resources/images/left1.png").getImage();
-        pacman3left = new ImageIcon("src/main/resources/images/left2.png").getImage();
-        pacman4left = new ImageIcon("src/main/resources/images/left3.png").getImage();
-        pacman2right = new ImageIcon("src/main/resources/images/right1.png").getImage();
-        pacman3right = new ImageIcon("src/main/resources/images/right2.png").getImage();
-        pacman4right = new ImageIcon("src/main/resources/images/right3.png").getImage();
+    private ImageIcon[] loadAndScalePacmanForDirection(String directory_file){
+        String pacmanIncompletePath = "src/main/resources/images/pacman/" + directory_file;
+        Image pacmanImg1 = new ImageIcon(pacmanIncompletePath+"1.png").getImage();
+        Image pacmanImg2 = new ImageIcon(pacmanIncompletePath+"2.png").getImage();
+        Image pacmanImg3 = new ImageIcon(pacmanIncompletePath+"3.png").getImage();
+        Image pacmanImg4 = new ImageIcon(pacmanIncompletePath+"4.png").getImage();
+        return new ImageIcon[] {
+                new ImageIcon(pacmanImg1.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg2.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg3.getScaledInstance(22, 22, Image.SCALE_SMOOTH)),
+                new ImageIcon(pacmanImg4.getScaledInstance(22, 22, Image.SCALE_SMOOTH))
+        };
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         doDrawing(g);
     }
 
