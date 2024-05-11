@@ -56,6 +56,9 @@ public class GameEngine extends JPanel implements ActionListener {
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
+    // This map is the representation of 5 binary bits in the decimal system
+    // binary: 0, 0, 0, 0, 0 => point present, (walls) boottom, right, up, left
+    // ex. 26 (decimal) -> 1 1 0 1 0 (binary) -> point exists, bottom and up
     private final short[] levelData = {
             19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
             21, 00, 00, 00, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
@@ -607,40 +610,39 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void drawMaze(Graphics2D g) {
-
-        short i = 0;
-        int x, y;
-
-        for (y = 0; y < SCREEN_SIZE; y += BLOCK_SIZE) {
-            for (x = 0; x < SCREEN_SIZE; x += BLOCK_SIZE) {
-
+        int index = 0;
+        for (int y = 0; y < SCREEN_SIZE; y += BLOCK_SIZE) {
+            for (int x = 0; x < SCREEN_SIZE; x += BLOCK_SIZE) {
                 g.setColor(mazeColor);
                 g.setStroke(new BasicStroke(2));
 
-                if ((screenData[i] & 1) != 0) {
-                    g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
+                for (int bit = 1; bit <= 16; bit <<= 1) {
+                    switch (bit) {
+                        case 1:// Vertical line on the left
+                            if ((screenData[index] & bit) != 0)
+                                g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
+                            break;
+                        case 2: // Horizontal line at the top
+                            if ((screenData[index] & bit) != 0)
+                                g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
+                            break;
+                        case 4: // Vertical line on the right
+                            if ((screenData[index] & bit) != 0)
+                                g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+                            break;
+                        case 8: // Horizontal line at the bottom
+                            if ((screenData[index] & bit) != 0)
+                                g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+                            break;
+                        case 16: // Point to be collected
+                            if ((screenData[index] & bit) != 0) {
+                                g.setColor(dotColor);
+                                g.fillRect(x + 11, y + 11, 2, 2);
+                            }
+                            break;
+                    }
                 }
-
-                if ((screenData[i] & 2) != 0) {
-                    g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
-                }
-
-                if ((screenData[i] & 4) != 0) {
-                    g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1,
-                            y + BLOCK_SIZE - 1);
-                }
-
-                if ((screenData[i] & 8) != 0) {
-                    g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1,
-                            y + BLOCK_SIZE - 1);
-                }
-
-                if ((screenData[i] & 16) != 0) {
-                    g.setColor(dotColor);
-                    g.fillRect(x + 11, y + 11, 2, 2);
-                }
-
-                i++;
+                index++;
             }
         }
     }
