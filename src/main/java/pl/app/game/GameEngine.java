@@ -21,7 +21,7 @@ import javax.swing.*;
 
 public class GameEngine extends JPanel implements ActionListener {
     private Thread gameThread;
-    private boolean isInvulnerable = false; // Kontroluje, czy Pacman jest nieśmiertelny
+    private boolean isInvulnerable = false;
 
     private Dimension d;
     private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
@@ -58,20 +58,20 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private final short[] levelData = {
             19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
-            21, 0, 0, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 0, 0, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 0, 0, 0, 17, 16, 16, 24, 16, 16, 16, 16, 16, 16, 20,
-            17, 18, 18, 18, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 20,
-            17, 16, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 16, 24, 20,
-            25, 16, 16, 16, 24, 24, 28, 0, 25, 24, 24, 16, 20, 0, 21,
-            1, 17, 16, 20, 0, 0, 0, 0, 0, 0, 0, 17, 20, 0, 21,
-            1, 17, 16, 16, 18, 18, 22, 0, 19, 18, 18, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 16, 18, 16, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20, 0, 21,
-            1, 25, 24, 24, 24, 24, 24, 24, 24, 24, 16, 16, 16, 18, 20,
-            9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 25, 24, 24, 24, 28
+            21, 00, 00, 00, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
+            21, 00, 00, 00, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
+            21, 00, 00, 00, 17, 16, 16, 24, 16, 16, 16, 16, 16, 16, 20,
+            17, 18, 18, 18, 16, 16, 20, 00, 17, 16, 16, 16, 16, 16, 20,
+            17, 16, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 16, 24, 20,
+            25, 16, 16, 16, 24, 24, 28, 00, 25, 24, 24, 16, 20, 00, 21,
+            01, 17, 16, 20, 00, 00, 00, 00, 00, 00, 00, 17, 20, 00, 21,
+            01, 17, 16, 16, 18, 18, 22, 00, 19, 18, 18, 16, 20, 00, 21,
+            01, 17, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 20, 00, 21,
+            01, 17, 16, 16, 16, 16, 20, 00, 17, 16, 16, 16, 20, 00, 21,
+            01, 17, 16, 16, 16, 16, 16, 18, 16, 16, 16, 16, 20, 00, 21,
+            01, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20, 00, 21,
+            01, 25, 24, 24, 24, 24, 24, 24, 24, 24, 16, 16, 16, 18, 20,
+            9,8, 8, 8, 8, 8, 8, 8, 8, 8, 25, 24, 24, 24, 28
     };
 
     private final int[] validSpeeds = {1, 2, 3, 4, 6, 8};
@@ -119,6 +119,7 @@ public class GameEngine extends JPanel implements ActionListener {
                     slowDownGhosts();
                     break;
             }
+            isActive = false;
         }
 
         private void boostSpeedTemporarily() {
@@ -530,6 +531,8 @@ public class GameEngine extends JPanel implements ActionListener {
             pos = pacmanPosX / BLOCK_SIZE + N_BLOCKS * (int) (pacmanPosY / BLOCK_SIZE);
             ch = screenData[pos];
 
+            checkForPowerUps(pacmanPosX, pacmanPosY);
+
             if ((ch & 16) != 0) {
                 screenData[pos] = (short) (ch & 15);
                 score++;
@@ -558,6 +561,17 @@ public class GameEngine extends JPanel implements ActionListener {
         }
         pacmanPosX = pacmanPosX + PACMAN_SPEED * PacmanDirX;
         pacmanPosY = pacmanPosY + PACMAN_SPEED * PacmanDirY;
+    }
+
+    private void checkForPowerUps(int x, int y) {
+        List<PowerUp> collected = new ArrayList<>();
+        for (PowerUp powerUp : activePowerUps) {
+            if (powerUp.posX == x && powerUp.posY == y && powerUp.isActive) {
+                powerUp.activate();
+                collected.add(powerUp);
+            }
+        }
+        activePowerUps.removeAll(collected);
     }
 
     private void drawPacman(Graphics2D g) {
