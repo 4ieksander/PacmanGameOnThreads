@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import javax.swing.*;
 
-import pl.game.subclasses.*;
 import pl.game.subclasses.PowerUp;
 
 public class GameEngine extends JPanel implements ActionListener {
@@ -245,8 +244,9 @@ public class GameEngine extends JPanel implements ActionListener {
             ghostPosY[i] = ghostPosY[i] + (ghostDirY[i] * ghostSpeed[i]);
             gameRender.drawGhost(g, ghostPosX[i] + 1, ghostPosY[i] + 1);
 
-            if (pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12) &&
-                    pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12) && inGame) {
+
+            if (!isInvulnerable && pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12)
+                    && pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12) && inGame) {
                 dying = true;
             }
         }
@@ -478,6 +478,9 @@ public class GameEngine extends JPanel implements ActionListener {
     }
     public int getScreenSize(){
         return SCREEN_SIZE;
+    }
+    public boolean isInvulnerable() {
+        return isInvulnerable;
     }
 
     class TAdapter extends KeyAdapter {

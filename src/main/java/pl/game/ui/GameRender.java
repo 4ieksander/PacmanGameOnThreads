@@ -84,8 +84,13 @@ public class GameRender {
 
 
     public void drawGhost(Graphics2D g, int x, int y) {
+        float alpha = game.isInvulnerable() ? 0.5f : 1f;
+        Composite originalComposite = g.getComposite();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         ghost.paintIcon(game, g, x, y);
+        g.setComposite(originalComposite);
     }
+
 
     public void drawPacman(Graphics2D g) {
         if (game.getViewDirectionX() == -1) {
@@ -101,6 +106,22 @@ public class GameRender {
             ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
             currentIcon.paintIcon(game, g, game.getPacmanPosX(), game.getPacmanPosY() + 1);
         }}
+
+    private void drawPowerUps(Graphics2D g) {
+        for (PowerUp powerUp : game.getActivePowerUps()) {
+            if (powerUp.isActive()) {
+                ImageIcon icon = powerUpIcons.get(powerUp.type.name());
+                if (icon != null) {
+                    icon.paintIcon(game, g, powerUp.getPosX(), powerUp.getPosY());
+                }
+                else{
+                    g.setColor(Color.MAGENTA);
+                    g.fillRect(powerUp.getPosX(), powerUp.getPosY(), game.BLOCK_SIZE, game.BLOCK_SIZE);
+                }
+            }
+        }
+    }
+
 
         private void drawScore (Graphics2D g){
 
@@ -190,19 +211,4 @@ public class GameRender {
         Image image= new ImageIcon(path).getImage();
         return new ImageIcon(image.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 }
-
-    private void drawPowerUps(Graphics2D g) {
-        for (PowerUp powerUp : game.getActivePowerUps()) {
-            if (powerUp.isActive()) {
-                ImageIcon icon = powerUpIcons.get(powerUp.type.name());
-                if (icon != null) {
-                    icon.paintIcon(game, g, powerUp.getPosX(), powerUp.getPosY());
-                }
-                else{
-                    g.setColor(Color.MAGENTA);
-                    g.fillRect(powerUp.getPosX(), powerUp.getPosY(), game.BLOCK_SIZE, game.BLOCK_SIZE);
-                }
-            }
-        }
-    }
 }

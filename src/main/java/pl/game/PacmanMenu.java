@@ -114,23 +114,6 @@ public class PacmanMenu extends JFrame {
         });
     }
 
-    private JButton createButton(String text, String card) {
-        JButton button = new JButton(text);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (card != null) {
-                    CardLayout cl = (CardLayout)(cards.getLayout());
-                    cl.show(cards, card);
-                } else if (text.equals("Exit")) {
-                    System.exit(0);
-                }
-                // add more conditions as needed
-            }
-        });
-        return button;
-    }
-
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             PacmanMenu ex = new PacmanMenu();
