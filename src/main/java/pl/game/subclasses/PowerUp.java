@@ -57,17 +57,6 @@ public class PowerUp {
         }).start();
     }
 
-//    private void boostPacmanSpeed() {
-//        game.setPACMAN_SPEED(game.getPACMAN_SPEED()+3);
-//        new Thread(() -> {
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//            }
-//            game.setPACMAN_SPEED(game.getPACMAN_SPEED()-3);
-//        }).start();
-//    }
 
     private void freezeGhosts() {
         for (int i = 0; i < game.getGhostSpeed().length; i++) {
