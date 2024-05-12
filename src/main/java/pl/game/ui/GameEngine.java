@@ -18,39 +18,39 @@ import pl.game.subclasses.PowerUp;
 public class GameEngine extends JPanel implements ActionListener {
     public static final int BLOCK_SIZE = 24;
 
-    private GameRender gameRender;
-    private Thread gameThread;
+    private final GameRender gameRender;
+    private final Random rand = new Random();
+    private final short[] levelData;
+    private final int SCREEN_SIZE;
+    private final int[] validSpeeds = {1, 2, 3, 4, 5, 6};
+
+    private final int DEFAULT_GHOST_START_X = 4;
+    private final int DEFAULT_GHOST_START_Y = 4;
+
+    private final int PACMAN_SPEED = 6;
+
+
     private boolean isInvulnerable = false;
 
     private Dimension dimension;
 
-    private Random rand = new Random();
     private boolean inGame = false;
     private boolean dying = false;
-
-    private final int MAX_GHOSTS = 12;
-    private final int PACMAN_SPEED = 6;
 
     private int N_GHOSTS = 6;
     private int livesLeft, score;
     private int scoreMultipler;
     private int[] ghostMoveOptionX, ghostMoveOptionY;
     private int[] ghostPosX, ghostPosY, ghostDirX, ghostDirY, ghostSpeed;
-    private short[] levelData;
     public int N_BLOCKS;
-    private int SCREEN_SIZE;
 
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
-
-    private final int[] validSpeeds = {1, 2, 3, 4, 5, 6};
     private int currentSpeed = 3;
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
 
-    private int DEFAULT_GHOST_START_X = 4;
-    private int DEFAULT_GHOST_START_Y = 4;
 
     public GameEngine(short[] levelData, int N_BLOCKS) {
         this.N_BLOCKS = N_BLOCKS;
@@ -75,6 +75,7 @@ public class GameEngine extends JPanel implements ActionListener {
         System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
         scoreMultipler = 1;
         dimension = new Dimension(SCREEN_SIZE+40, SCREEN_SIZE+40);
+        int MAX_GHOSTS = 12;
         ghostPosX = new int[MAX_GHOSTS];
         ghostDirX = new int[MAX_GHOSTS];
         ghostPosY = new int[MAX_GHOSTS];
@@ -104,7 +105,7 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void startGameThread() {
-        gameThread = new Thread(() -> {
+        Thread gameThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     SwingUtilities.invokeLater(this::repaint);
