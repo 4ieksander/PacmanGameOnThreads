@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class PowerUp {
     public enum Type {
-        SUPER_SPEED, FREEZE, EXTRA_LIFE, INVULNERABILITY, SLOW_GHOSTS
+        SCORE_BOOSTER, FREEZE, EXTRA_LIFE, INVULNERABILITY, SLOW_GHOSTS
     }
 
     public Type type;
@@ -26,8 +26,8 @@ public class PowerUp {
     public void activate() {
         System.out.println("PowerUp activated "+ type.name());
         switch (type) {
-            case SUPER_SPEED:
-                boostSpeedTemporarily();
+            case SCORE_BOOSTER:
+                increaseScoreMultipler();
                 break;
             case FREEZE:
                 freezeGhosts();
@@ -45,17 +45,29 @@ public class PowerUp {
         isActive = false;
     }
 
-    private void boostSpeedTemporarily() {
-        game.setCurrentSpeed(game.getCurrentSpeed()+3);
+    private void increaseScoreMultipler(){
+        game.setScoreMultipler(game.getScoreMultipler()*3);
         new Thread(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            game.setCurrentSpeed(game.getCurrentSpeed()-3);
+            game.setScoreMultipler(1);
         }).start();
     }
+
+//    private void boostPacmanSpeed() {
+//        game.setPACMAN_SPEED(game.getPACMAN_SPEED()+3);
+//        new Thread(() -> {
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//            }
+//            game.setPACMAN_SPEED(game.getPACMAN_SPEED()-3);
+//        }).start();
+//    }
 
     private void freezeGhosts() {
         for (int i = 0; i < game.getGhostSpeed().length; i++) {
@@ -67,7 +79,7 @@ public class PowerUp {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            resetGhostSpeed();
+            game.resetGhostSpeed();
         }).start();
     }
 
@@ -93,19 +105,14 @@ public class PowerUp {
         }
         new Thread(() -> {
             try {
-                Thread.sleep(7000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            resetGhostSpeed();
+            game.resetGhostSpeed();
         }).start();
     }
 
-    private void resetGhostSpeed() {
-        for (int i = 0; i < game.getGhostSpeed().length; i++) {
-            game.setGhostSpeed(i, game.getValidSpeeds()[random.nextInt(game.getValidSpeeds().length)] );
-        }
-    }
     public int getPosX() {
         return posX;
     }

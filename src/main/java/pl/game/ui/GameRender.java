@@ -196,14 +196,14 @@ public class GameRender {
         ImageIcon extraLife = loadAndScaleIcon(boostersDirectory+"ExtraLife.png");
         ImageIcon freeze = loadAndScaleIcon(boostersDirectory+"Freeze.png");
         ImageIcon invulnerability = loadAndScaleIcon(boostersDirectory+"Invulnerability.png");
-        ImageIcon slowGhosts = loadAndScaleIcon(boostersDirectory+"SlowGhost.png");
-        ImageIcon speedUp = loadAndScaleIcon(boostersDirectory+"SpeedUp.png");
+        ImageIcon slowGhosts = loadAndScaleIcon(boostersDirectory+"SlowGhosts.png");
+        ImageIcon scoreBooster = loadAndScaleIcon(boostersDirectory+"ScoreBooster.png");
 
         boosterIcons.put("EXTRA_LIFE", extraLife);
         boosterIcons.put("FREEZE", freeze);
         boosterIcons.put("INVULNERABILITY", invulnerability);
         boosterIcons.put("SLOW_GHOSTS", slowGhosts);
-        boosterIcons.put("SUPER_SPEED", speedUp);
+        boosterIcons.put("SCORE_BOOSTER", scoreBooster);
         return boosterIcons;
     }
 

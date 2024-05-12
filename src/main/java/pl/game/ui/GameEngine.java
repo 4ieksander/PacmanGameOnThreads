@@ -33,6 +33,7 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private int N_GHOSTS = 6;
     private int livesLeft, score;
+    private int scoreMultipler;
     private int[] ghostMoveOptionX, ghostMoveOptionY;
     private int[] ghostPosX, ghostPosY, ghostDirX, ghostDirY, ghostSpeed;
     private short[] levelData;
@@ -43,13 +44,13 @@ public class GameEngine extends JPanel implements ActionListener {
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
 
-    private final int[] validSpeeds = {1, 2, 3, 4, 6, 8};
+    private final int[] validSpeeds = {1, 2, 3, 4, 5, 6};
     private int currentSpeed = 3;
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
 
-    private int DEFAULT_GHOST_START_X = 5;
-    private int DEFAULT_GHOST_START_Y = 5;
+    private int DEFAULT_GHOST_START_X = 4;
+    private int DEFAULT_GHOST_START_Y = 4;
 
     public GameEngine(short[] levelData, int N_BLOCKS) {
         this.N_BLOCKS = N_BLOCKS;
@@ -72,6 +73,7 @@ public class GameEngine extends JPanel implements ActionListener {
         screenData = new short[N_BLOCKS * N_BLOCKS];
         System.out.println("Screen Data Length: " + screenData.length);
         System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
+        scoreMultipler = 1;
         dimension = new Dimension(SCREEN_SIZE+40, SCREEN_SIZE+40);
         ghostPosX = new int[MAX_GHOSTS];
         ghostDirX = new int[MAX_GHOSTS];
@@ -165,19 +167,14 @@ public class GameEngine extends JPanel implements ActionListener {
     private void continueLevel() {
         short i;
         int dx = 1;
-        int random;
         for (i = 0; i < N_GHOSTS; i++) {
-            ghostPosY[i] = 4 * BLOCK_SIZE;
-            ghostPosX[i] = 4 * BLOCK_SIZE;
+            ghostPosY[i] = DEFAULT_GHOST_START_Y * BLOCK_SIZE;
+            ghostPosX[i] = DEFAULT_GHOST_START_X * BLOCK_SIZE;
             ghostDirY[i] = 0;
             ghostDirX[i] = dx;
             dx = -dx;
-            random = (int) (Math.random() * (currentSpeed + 1));
-            if (random > currentSpeed) {
-                random = currentSpeed;
-            }
-            ghostSpeed[i] = validSpeeds[random];
         }
+        resetGhostSpeed();
         pacmanPosX = 7 * BLOCK_SIZE;
         pacmanPosY = 10 * BLOCK_SIZE;
         PacmanDirX = 0;
@@ -189,61 +186,24 @@ public class GameEngine extends JPanel implements ActionListener {
         dying = false;
     }
 
-
     private void moveGhosts(Graphics2D g) {
-        short i;
-        int pos;
-        int count;
-        for (i = 0; i < N_GHOSTS; i++) {
-            if (ghostPosX[i] % BLOCK_SIZE == 0 && ghostPosY[i] % BLOCK_SIZE == 0) {
-                pos = ghostPosX[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghostPosY[i] / BLOCK_SIZE);
+        for (int i = 0; i < N_GHOSTS; i++) {
+            int nextX = ghostPosX[i] + ghostDirX[i] * ghostSpeed[i];
+            int nextY = ghostPosY[i] + ghostDirY[i] * ghostSpeed[i];
 
-                if (pos < 0 || pos >= screenData.length) {
-                    System.out.println("Invalid position index detected for ghost " + i + ": " + pos);
-                    resetGhostPosition(i);
-                    continue;
-                }
-
-                count = 0;
-
-                if ((screenData[pos] & 1) == 0 && ghostDirX[i] != 1) {
-                    ghostMoveOptionX[count] = -1;
-                    ghostMoveOptionY[count] = 0;
-                    count++;
-                }
-
-                if ((screenData[pos] & 2) == 0 && ghostDirY[i] != 1) {
-                    ghostMoveOptionX[count] = 0;
-                    ghostMoveOptionY[count] = -1;
-                    count++;
-                }
-
-                if ((screenData[pos] & 4) == 0 && ghostDirX[i] != -1) {
-                    ghostMoveOptionX[count] = 1;
-                    ghostMoveOptionY[count] = 0;
-                    count++;
-                }
-
-                if ((screenData[pos] & 8) == 0 && ghostDirY[i] != -1) {
-                    ghostMoveOptionX[count] = 0;
-                    ghostMoveOptionY[count] = 1;
-                    count++;
-                }
-
-                if (count == 0) {
-                    ghostDirX[i] = -ghostDirX[i];
-                    ghostDirY[i] = -ghostDirY[i];
+            if (nextX < 0 || nextX >= SCREEN_SIZE || nextY < 0 || nextY >= SCREEN_SIZE) {
+                resetGhostPosition(i);
+            } else {
+                int index = (nextX / BLOCK_SIZE) + N_BLOCKS * (nextY / BLOCK_SIZE);
+                if (index >= 0 && index < screenData.length && (screenData[index] & 15) == 0) {
+                    ghostPosX[i] = nextX;
+                    ghostPosY[i] = nextY;
                 } else {
-                    count = (int) (Math.random() * count);
-                    ghostDirX[i] = ghostMoveOptionX[count];
-                    ghostDirY[i] = ghostMoveOptionY[count];
+                    chooseNewDirection(i);
                 }
             }
 
-            ghostPosX[i] = ghostPosX[i] + (ghostDirX[i] * ghostSpeed[i]);
-            ghostPosY[i] = ghostPosY[i] + (ghostDirY[i] * ghostSpeed[i]);
             gameRender.drawGhost(g, ghostPosX[i] + 1, ghostPosY[i] + 1);
-
 
             if (!isInvulnerable && pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12)
                     && pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12) && inGame) {
@@ -252,46 +212,40 @@ public class GameEngine extends JPanel implements ActionListener {
         }
     }
 
+    private void chooseNewDirection(int ghostIndex) {
+        int count = 0;
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
+
+        for (int dir = 0; dir < dx.length; dir++) {
+            int testX = ghostPosX[ghostIndex] + dx[dir] * BLOCK_SIZE;
+            int testY = ghostPosY[ghostIndex] + dy[dir] * BLOCK_SIZE;
+
+            int index = (testX / BLOCK_SIZE) + N_BLOCKS * (testY / BLOCK_SIZE);
+            if (index >= 0 && index < screenData.length && (screenData[index] & 15) == 0) {
+                ghostMoveOptionX[count] = dx[dir];
+                ghostMoveOptionY[count] = dy[dir];
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            int chosenDirection = rand.nextInt(count);
+            ghostDirX[ghostIndex] = ghostMoveOptionX[chosenDirection];
+            ghostDirY[ghostIndex] = ghostMoveOptionY[chosenDirection];
+        } else {
+            ghostDirX[ghostIndex] = -ghostDirX[ghostIndex];
+            ghostDirY[ghostIndex] = -ghostDirY[ghostIndex];
+        }
+    }
+
+
     private void resetGhostPosition(int ghostIndex) {
         ghostPosX[ghostIndex] = DEFAULT_GHOST_START_X * BLOCK_SIZE;
         ghostPosY[ghostIndex] = DEFAULT_GHOST_START_Y * BLOCK_SIZE;
         ghostDirX[ghostIndex] = 0;
         ghostDirY[ghostIndex] = 0;
         System.out.println("Resetting ghost " + ghostIndex + " to default position.");
-    }
-
-
-    private boolean canMove(int x, int y) {
-        if (x < 0 || y < 0 || x >= N_BLOCKS * BLOCK_SIZE || y >= N_BLOCKS * BLOCK_SIZE) {
-            return false;
-        }
-        int index = x / BLOCK_SIZE + N_BLOCKS * (y / BLOCK_SIZE);
-        if (index < 0 || index >= screenData.length) {
-            return false;
-        }
-        return screenData[index] == 0;
-    }
-
-
-    private void selectNewDirection(int ghostIndex) {
-        int[] possibleDirections = new int[]{-1, 0, 1};
-        boolean moved = false;
-
-        while (!moved) {
-            int dirX = possibleDirections[(int) (Math.random() * 3)];
-            int dirY = possibleDirections[(int) (Math.random() * 3)];
-            if (dirX != 0 && dirY != 0) {
-                continue;
-            }
-
-            int nextX = ghostPosX[ghostIndex] + dirX * BLOCK_SIZE;
-            int nextY = ghostPosY[ghostIndex] + dirY * BLOCK_SIZE;
-            if (canMove(nextX, nextY)) {
-                ghostDirX[ghostIndex] = dirX;
-                ghostDirY[ghostIndex] = dirY;
-                moved = true;
-            }
-        }
     }
 
     private void movePacman() {
@@ -311,7 +265,7 @@ public class GameEngine extends JPanel implements ActionListener {
 
             if ((ch & 16) != 0) {
                 screenData[pos] = (short) (ch & 15);
-                score++;
+                score += scoreMultipler;
             }
 
             if (tempDirX != 0 || tempDirY != 0) {
@@ -374,41 +328,20 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
     private void checkForPowerUps(int x, int y) {
-        List<PowerUp> collected = new ArrayList<>();
-        for (PowerUp powerUp : activePowerUps) {
+        Iterator<PowerUp> iterator = activePowerUps.iterator();
+        while (iterator.hasNext()) {
+            PowerUp powerUp = iterator.next();
             if (powerUp.getPosX() == x && powerUp.getPosY() == y && powerUp.isActive()) {
                 powerUp.activate();
-                collected.add(powerUp);
+                iterator.remove();
             }
         }
-        activePowerUps.removeAll(collected);
     }
 
     private boolean isValidLocation(int x, int y) {
         return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
                 .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
     }
-//    private boolean isValidLocation(int x, int y) {
-//
-//        if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) {
-//            return false;
-//        }
-//        int index = x / BLOCK_SIZE + N_BLOCKS * (y / BLOCK_SIZE);
-//
-//        if (index < 0 || index >= screenData.length) {
-//            resetEnemyPosition();
-//            return false;
-//        }
-//        else
-//        {
-//        return screenData[index] == 0;
-//    }}
-//    private void resetEnemyPosition() {
-//        // Zakładamy, że masz zdefiniowane domyślne współrzędne startowe dla wroga
-//        enemyX = DEFAULT_ENEMY_START_X;
-//        enemyY = DEFAULT_ENEMY_START_Y;
-//    }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -427,7 +360,11 @@ public class GameEngine extends JPanel implements ActionListener {
         initGame();
     }
 
-
+    public void resetGhostSpeed() {
+        for (int i = 0; i < N_GHOSTS; i++) {
+            setGhostSpeed(i, getValidSpeeds()[rand.nextInt(getValidSpeeds().length)]);
+        }
+    }
     public int[] getGhostSpeed() {
         return ghostSpeed;
     }
@@ -435,7 +372,7 @@ public class GameEngine extends JPanel implements ActionListener {
         this.ghostSpeed = ghostSpeed;
     }
     public void setGhostSpeed(int id, int ghostSpeed) {
-        this.ghostSpeed[id] = id;
+        this.ghostSpeed[id] = ghostSpeed;
     }
     public int getCurrentSpeed(){
         return currentSpeed;
@@ -481,6 +418,15 @@ public class GameEngine extends JPanel implements ActionListener {
     }
     public boolean isInvulnerable() {
         return isInvulnerable;
+    }
+    public int getPACMAN_SPEED(){
+        return PACMAN_SPEED;
+    }
+    public int getScoreMultipler() {
+        return scoreMultipler;
+    }
+    public void setScoreMultipler(int scoreMultipler) {
+        this.scoreMultipler = scoreMultipler;
     }
 
     class TAdapter extends KeyAdapter {
