@@ -10,6 +10,7 @@ import java.util.Map;
 public class GameRender {
     private GameEngine game;
     private ImageIcon ghost;
+    private ImageIcon pacmanIcon;
     private ImageIcon[] pacmanUpIcons;
     private ImageIcon[] pacmanDownIcons;
     private ImageIcon[] pacmanLeftIcons;
@@ -123,20 +124,20 @@ public class GameRender {
     }
 
 
-        private void drawScore (Graphics2D g){
+    private void drawScore (Graphics2D g){
 
-            int i;
-            String s;
+        int i;
+        String s;
 
-            g.setFont(smallFont);
-            g.setColor(new Color(96, 128, 255));
-            s = "Score: " + game.getScore();
-            g.drawString(s, game.getScreenSize() / 2 + 96, game.getScreenSize() + 16);
+        g.setFont(smallFont);
+        g.setColor(new Color(96, 128, 255));
+        s = "Score: " + game.getScore();
+        g.drawString(s, game.getScreenSize() / 2 + 96, game.getScreenSize() + 16);
 
-            for (i = 0; i < game.getLivesLeft(); i++) {
-                ghost.paintIcon(game, g, i * 28 + 8, game.getScreenSize() + 1);
-            }
+        for (i = 0; i < game.getLivesLeft(); i++) {
+            pacmanIcon.paintIcon(game, g, i * 28 + 8, game.getScreenSize() + 1);
         }
+    }
 
 
 
@@ -148,26 +149,26 @@ public class GameRender {
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = game.getFontMetrics(small);
 
-        g.setColor(Color.WHITE); // background to text
+        g.setColor(Color.WHITE); // background for text
         g.setFont(small);
         g.drawString(s, (game.getScreenSize() - metr.stringWidth(s)) / 2, game.getScreenSize()/ 2);
     }
 
 
     private void startAnimation () {
-            Thread animationThread = new Thread(() -> {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
-                        Thread.sleep(PAC_ANIM_DELAY);
-                        game.repaint();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
+        Thread animationThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
+                    Thread.sleep(PAC_ANIM_DELAY);
+                    game.repaint();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            });
-            animationThread.start();
-        }
+            }
+        });
+        animationThread.start();
+    }
 
     private void loadAndScaleImages() {
         Image ghost_not_Scaled = new ImageIcon("src/main/resources/images/Ghost.png").getImage();
@@ -176,6 +177,7 @@ public class GameRender {
         pacmanDownIcons = loadAndScalePacmanForDirection("down/Down");
         pacmanRightIcons = loadAndScalePacmanForDirection("right/Right");
         pacmanLeftIcons = loadAndScalePacmanForDirection("left/Left");
+        pacmanIcon = pacmanLeftIcons[3];
         powerUpIcons = loadAndScaleBoosterIcons();
     }
 
@@ -210,5 +212,5 @@ public class GameRender {
     private ImageIcon loadAndScaleIcon(String path){
         Image image= new ImageIcon(path).getImage();
         return new ImageIcon(image.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
-}
+    }
 }
