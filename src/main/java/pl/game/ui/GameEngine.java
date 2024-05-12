@@ -63,11 +63,10 @@ public class GameEngine extends JPanel implements ActionListener {
 
 
     private void initBoard() {
-        setBackground(Color.black); // Ensure background is visible
         System.out.println("Board size set to: " + SCREEN_SIZE + "x" + SCREEN_SIZE);
         addKeyListener(new TAdapter());
         setFocusable(true);
-        setBackground(Color.black);
+        setBackground(Color.WHITE);
     }
 
     private void initVariables() {
@@ -120,7 +119,7 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private void doDrawing(Graphics g) {
         Graphics2D graphics = (Graphics2D) g;
-        g.setColor(Color.black);
+        g.setColor(Color.BLACK); // global background
         g.fillRect(0, 0, dimension.width, dimension.height);
         gameRender.render(graphics);
         if (inGame) {
@@ -199,16 +198,16 @@ public class GameEngine extends JPanel implements ActionListener {
         for (i = 0; i < N_GHOSTS; i++) {
             if (ghostPosX[i] % BLOCK_SIZE == 0 && ghostPosY[i] % BLOCK_SIZE == 0) {
                 pos = ghostPosX[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghostPosY[i] / BLOCK_SIZE);
-                count = 0;
 
-                if (pos < 0 || pos > N_BLOCKS*N_BLOCKS-1){
-                    System.out.println("POS" + pos);
-                    System.out.println("I" + i);
+                if (pos < 0 || pos >= screenData.length) {
+                    System.out.println("Invalid position index detected for ghost " + i + ": " + pos);
                     resetGhostPosition(i);
                     continue;
                 }
-                if ((screenData[pos] & 1) == 0 && ghostDirX[i] != 1) {
 
+                count = 0;
+
+                if ((screenData[pos] & 1) == 0 && ghostDirX[i] != 1) {
                     ghostMoveOptionX[count] = -1;
                     ghostMoveOptionY[count] = 0;
                     count++;
@@ -233,49 +232,34 @@ public class GameEngine extends JPanel implements ActionListener {
                 }
 
                 if (count == 0) {
-
-                    if ((screenData[pos] & 15) == 15) {
-                        ghostDirX[i] = 0;
-                        ghostDirY[i] = 0;
-                    } else {
-                        ghostDirX[i] = -ghostDirX[i];
-                        ghostDirY[i] = -ghostDirY[i];
-                    }
-
+                    ghostDirX[i] = -ghostDirX[i];
+                    ghostDirY[i] = -ghostDirY[i];
                 } else {
-
                     count = (int) (Math.random() * count);
-
-                    if (count > 3) {
-                        count = 3;
-                    }
-
                     ghostDirX[i] = ghostMoveOptionX[count];
                     ghostDirY[i] = ghostMoveOptionY[count];
                 }
-
             }
 
             ghostPosX[i] = ghostPosX[i] + (ghostDirX[i] * ghostSpeed[i]);
             ghostPosY[i] = ghostPosY[i] + (ghostDirY[i] * ghostSpeed[i]);
             gameRender.drawGhost(g, ghostPosX[i] + 1, ghostPosY[i] + 1);
 
-            if (pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12)
-                    && pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12)
-                    && inGame) {
-
+            if (pacmanPosX > (ghostPosX[i] - 12) && pacmanPosX < (ghostPosX[i] + 12) &&
+                    pacmanPosY > (ghostPosY[i] - 12) && pacmanPosY < (ghostPosY[i] + 12) && inGame) {
                 dying = true;
             }
         }
     }
 
     private void resetGhostPosition(int ghostIndex) {
-        // Możesz także wybrać losową bezpieczną lokalizację z dostępnych
-        ghostPosX[ghostIndex] = DEFAULT_GHOST_START_X;
-        ghostPosY[ghostIndex] = DEFAULT_GHOST_START_Y;
-        ghostDirX[ghostIndex] = 0; // Zatrzymaj ruch duszka w kierunku X
-        ghostDirY[ghostIndex] = 0; // Zatrzymaj ruch duszka w kierunku Y
+        ghostPosX[ghostIndex] = DEFAULT_GHOST_START_X * BLOCK_SIZE;
+        ghostPosY[ghostIndex] = DEFAULT_GHOST_START_Y * BLOCK_SIZE;
+        ghostDirX[ghostIndex] = 0;
+        ghostDirY[ghostIndex] = 0;
+        System.out.println("Resetting ghost " + ghostIndex + " to default position.");
     }
+
 
     private boolean canMove(int x, int y) {
         if (x < 0 || y < 0 || x >= N_BLOCKS * BLOCK_SIZE || y >= N_BLOCKS * BLOCK_SIZE) {

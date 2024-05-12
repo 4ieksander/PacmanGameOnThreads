@@ -4,14 +4,17 @@ import pl.game.subclasses.PowerUp;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameRender {
     private GameEngine game;
     private ImageIcon ghost;
-    private ImageIcon[] pacmanUp;
-    private ImageIcon[] pacmanDown;
-    private ImageIcon[] pacmanLeft;
-    private ImageIcon[] pacmanRight;
+    private ImageIcon[] pacmanUpIcons;
+    private ImageIcon[] pacmanDownIcons;
+    private ImageIcon[] pacmanLeftIcons;
+    private ImageIcon[] pacmanRightIcons;
+    private Map<String, ImageIcon> powerUpIcons;
     private final int PAC_ANIM_DELAY = 200;
     private final int PACMAN_IMAGES_COUNT = 4;
     private int currentImageNumber;
@@ -86,16 +89,16 @@ public class GameRender {
 
     public void drawPacman(Graphics2D g) {
         if (game.getViewDirectionX() == -1) {
-            ImageIcon currentIcon = pacmanLeft[currentImageNumber];
+            ImageIcon currentIcon = pacmanLeftIcons[currentImageNumber];
             currentIcon.paintIcon(game, g, game.getPacmanPosX() - 1, game.getPacmanPosY());
         } else if (game.getViewDirectionX() == 1) {
-            ImageIcon currentIcon = pacmanRight[currentImageNumber];
+            ImageIcon currentIcon = pacmanRightIcons[currentImageNumber];
             currentIcon.paintIcon(game, g, game.getPacmanPosX() + 1, game.getPacmanPosY());
         } else if (game.getViewDirectionY() == -1) {
-            ImageIcon currentIcon = pacmanUp[currentImageNumber];
+            ImageIcon currentIcon = pacmanUpIcons[currentImageNumber];
             currentIcon.paintIcon(game, g, game.getPacmanPosX(), game.getPacmanPosY() - 1);
         } else {
-            ImageIcon currentIcon = pacmanDown[currentImageNumber];
+            ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
             currentIcon.paintIcon(game, g, game.getPacmanPosX(), game.getPacmanPosY() + 1);
         }}
 
@@ -119,14 +122,12 @@ public class GameRender {
     public void showIntroScreen (Graphics2D g){
         g.setColor(new Color(0, 32, 48));
         g.fillRect(50, game.getScreenSize() / 2 - 30, game.getScreenSize() - 100, 50);
-        g.setColor(Color.white);
-        g.drawRect(50, game.getScreenSize() / 2 - 30, game.getScreenSize() - 100, 50);
 
         String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = game.getFontMetrics(small);
 
-        g.setColor(Color.white);
+        g.setColor(Color.WHITE); // background to text
         g.setFont(small);
         g.drawString(s, (game.getScreenSize() - metr.stringWidth(s)) / 2, game.getScreenSize()/ 2);
     }
@@ -147,36 +148,61 @@ public class GameRender {
             animationThread.start();
         }
 
-        private void loadAndScaleImages() {
-            Image ghost_not_Scaled = new ImageIcon("src/main/resources/images/Ghost.png").getImage();
-            ghost = new ImageIcon(ghost_not_Scaled.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-            pacmanUp = loadAndScalePacmanForDirection("up/Up");
-            pacmanDown = loadAndScalePacmanForDirection("down/Down");
-            pacmanRight = loadAndScalePacmanForDirection("right/Right");
-            pacmanLeft = loadAndScalePacmanForDirection("left/Left");
-        }
+    private void loadAndScaleImages() {
+        Image ghost_not_Scaled = new ImageIcon("src/main/resources/images/Ghost.png").getImage();
+        ghost = new ImageIcon(ghost_not_Scaled.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+        pacmanUpIcons = loadAndScalePacmanForDirection("up/Up");
+        pacmanDownIcons = loadAndScalePacmanForDirection("down/Down");
+        pacmanRightIcons = loadAndScalePacmanForDirection("right/Right");
+        pacmanLeftIcons = loadAndScalePacmanForDirection("left/Left");
+        powerUpIcons = loadAndScaleBoosterIcons();
+    }
 
-        private ImageIcon[] loadAndScalePacmanForDirection(String directory_file){
-            String pacmanIncompletePath = "src/main/resources/images/pacman/" + directory_file;
-            Image pacmanImg1 = new ImageIcon(pacmanIncompletePath+"1.png").getImage();
-            Image pacmanImg2 = new ImageIcon(pacmanIncompletePath+"2.png").getImage();
-            Image pacmanImg3 = new ImageIcon(pacmanIncompletePath+"3.png").getImage();
-            Image pacmanImg4 = new ImageIcon(pacmanIncompletePath+"4.png").getImage();
-            return new ImageIcon[] {
-                    new ImageIcon(pacmanImg1.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
-                    new ImageIcon(pacmanImg2.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
-                    new ImageIcon(pacmanImg3.getScaledInstance(25, 25, Image.SCALE_SMOOTH)),
-                    new ImageIcon(pacmanImg4.getScaledInstance(25, 25, Image.SCALE_SMOOTH))
-            };
-        }
+    private ImageIcon[] loadAndScalePacmanForDirection(String directory_file){
+        String pacmanIncompletePath = "src/main/resources/images/pacman/" + directory_file;
+        return new ImageIcon[] {
+                loadAndScaleIcon(pacmanIncompletePath+"1.png"),
+                loadAndScaleIcon(pacmanIncompletePath+"2.png"),
+                loadAndScaleIcon(pacmanIncompletePath+"3.png"),
+                loadAndScaleIcon(pacmanIncompletePath+"4.png"),
+        };
+    }
 
-        private void drawPowerUps(Graphics2D g) {
-            for (PowerUp powerUp : game.getActivePowerUps()) {
-                if (powerUp.isActive()) {
+    private Map<String, ImageIcon> loadAndScaleBoosterIcons(){
+        Map<String, ImageIcon> boosterIcons = new HashMap<>();
+        String boostersDirectory = "src/main/resources/images/boosters/";
+
+        ImageIcon extraLife = loadAndScaleIcon(boostersDirectory+"ExtraLife.png");
+        ImageIcon freeze = loadAndScaleIcon(boostersDirectory+"Freeze.png");
+        ImageIcon invulnerability = loadAndScaleIcon(boostersDirectory+"Invulnerability.png");
+        ImageIcon slowGhosts = loadAndScaleIcon(boostersDirectory+"SlowGhost.png");
+        ImageIcon speedUp = loadAndScaleIcon(boostersDirectory+"SpeedUp.png");
+
+        boosterIcons.put("EXTRA_LIFE", extraLife);
+        boosterIcons.put("FREEZE", freeze);
+        boosterIcons.put("INVULNERABILITY", invulnerability);
+        boosterIcons.put("SLOW_GHOSTS", slowGhosts);
+        boosterIcons.put("SUPER_SPEED", speedUp);
+        return boosterIcons;
+    }
+
+    private ImageIcon loadAndScaleIcon(String path){
+        Image image= new ImageIcon(path).getImage();
+        return new ImageIcon(image.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+}
+
+    private void drawPowerUps(Graphics2D g) {
+        for (PowerUp powerUp : game.getActivePowerUps()) {
+            if (powerUp.isActive()) {
+                ImageIcon icon = powerUpIcons.get(powerUp.type.name());
+                if (icon != null) {
+                    icon.paintIcon(game, g, powerUp.getPosX(), powerUp.getPosY());
+                }
+                else{
                     g.setColor(Color.MAGENTA);
                     g.fillRect(powerUp.getPosX(), powerUp.getPosY(), game.BLOCK_SIZE, game.BLOCK_SIZE);
                 }
             }
         }
-
+    }
 }

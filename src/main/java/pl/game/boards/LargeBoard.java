@@ -7,6 +7,10 @@ public class LargeBoard implements IBoard {
     private final String name = "Large Board";
     private final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = GameEngine.BLOCK_SIZE * N_BLOCKS;
+
+    // This map is the representation of 5 binary bits in the decimal system
+    // binary: 0, 0, 0, 0, 0 => point present, (walls) boottom, right, up, left
+    // ex. 26 (decimal) -> 1 1 0 1 0 (binary) -> point exists, bottom and up
     private final short[] levelData = {
             19, 18, 18, 18, 18, 18, 18, 18, 26, 18, 18, 18, 18, 18, 22,
             17, 16, 16, 16, 4, 1, 16, 20, 0, 17, 16, 16, 16, 16, 20,

@@ -43,12 +43,9 @@ public class PacmanMenu extends JFrame {
         exitButton.addActionListener(e -> System.exit(0));
 
         JPanel gamePanel = new JPanel();
-        gamePanel.setBackground(Color.BLACK);
-        // Initialize your game panel here
-
 
         menuPanel.add(newGameButton, MENUPANEL);
-        menuPanel.add(highScoreButton, null); // Placeholder, no action
+        menuPanel.add(highScoreButton, null);
         menuPanel.add(exitButton, MENUPANEL);
 
         cards.add(menuPanel, MENUPANEL);
