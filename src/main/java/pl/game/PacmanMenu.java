@@ -1,9 +1,10 @@
 package pl.game;
 
-import pl.game.boards.LargeBoard;
 import pl.game.boards.*;
 import pl.game.ui.PacmanGame;
 import pl.game.interfaces.IBoard;
+import pl.game.exceptions.BoardDoesNotExistException;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,23 +79,31 @@ public class PacmanMenu extends JFrame {
     }
 
     private void selectBoard(String size) {
-        switch (size) {
-            case "Extra Small":
-                break;
-            case "Small":
-                break;
-            case "Medium":
-                break;
-            case "Large":
-                board = new LargeBoard();
-                break;
-            case "Extra Large":
-                break;
-            default:
-                board = new LargeBoard();
-                System.out.println("Invalid size, here should be exception");
+        try {
+            switch (size) {
+//                case "Extra Small":
+//                    board = new ExtraSmallBoard();
+//                    break;
+//                case "Small":
+//                    board = new SmallBoard();
+//                    break;
+                case "Medium":
+                    board = new MediumBoard();
+                    break;
+//                case "Large":
+//                    board = new LargeBoard();
+//                    break;
+//                case "Extra Large":
+//                    board = new ExtraLargeBoard();
+//                    break;
+                default:
+                    throw new BoardDoesNotExistException("The selected board size does not exist: " + size);
+            }
+            runGame();
+        } catch (BoardDoesNotExistException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println(e.getMessage());
         }
-        runGame();
     }
 
     private void runGame(){

@@ -1,6 +1,6 @@
 package pl.game.ui;
 
-import pl.game.boards.LargeBoard;
+import pl.game.boards.MediumBoard;
 import pl.game.interfaces.IBoard;
 
 import java.awt.EventQueue;
@@ -31,7 +31,7 @@ public class PacmanGame extends JFrame {
 
         EventQueue.invokeLater(() -> {
 
-            var ex = new PacmanGame(new LargeBoard());
+            var ex = new PacmanGame(new MediumBoard());
             ex.setVisible(true);
         });
     }
