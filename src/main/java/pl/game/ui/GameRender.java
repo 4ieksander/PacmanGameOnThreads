@@ -16,6 +16,7 @@ public class GameRender {
     private ImageIcon[] pacmanLeftIcons;
     private ImageIcon[] pacmanRightIcons;
     private Map<String, ImageIcon> powerUpIcons;
+    private long minutes, seconds;
     private final int PAC_ANIM_DELAY = 200;
     private final int PACMAN_IMAGES_COUNT = 4;
     private int currentImageNumber;
@@ -134,6 +135,9 @@ public class GameRender {
         s = "Score: " + game.getScore();
         g.drawString(s, game.getScreenSize() / 2 + 96, game.getScreenSize() + 16);
 
+        String timeText = String.format("Czas: %02d:%02d", minutes, seconds);
+        g.drawString(timeText, game.getScreenSize() / 2 - 40, game.getScreenSize() + 16);
+
         for (i = 0; i < game.getLivesLeft(); i++) {
             pacmanIcon.paintIcon(game, g, i * 28 + 8, game.getScreenSize() + 1);
         }
@@ -212,5 +216,21 @@ public class GameRender {
     private ImageIcon loadAndScaleIcon(String path){
         Image image= new ImageIcon(path).getImage();
         return new ImageIcon(image.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+    }
+
+    public long getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(long minutes) {
+        this.minutes = minutes;
+    }
+
+    public long getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(long seconds) {
+        this.seconds = seconds;
     }
 }

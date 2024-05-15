@@ -51,6 +51,9 @@ public class GameEngine extends JPanel implements ActionListener {
     private short[] screenData;
     List<PowerUp> activePowerUps = new ArrayList<>();
 
+    private long startTime;
+    private Thread timerThread;
+
 
     public GameEngine(short[] levelData, int N_BLOCKS) {
         this.N_BLOCKS = N_BLOCKS;
@@ -59,6 +62,32 @@ public class GameEngine extends JPanel implements ActionListener {
         gameRender = new GameRender(this);
         initVariables();
         initBoard();
+    }
+
+    public void startGameTimer() {
+        startTime = System.currentTimeMillis();
+        timerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                long elapsedSeconds = elapsedTime / 1000;
+                long secondsDisplay = elapsedSeconds % 60;
+                long elapsedMinutes = elapsedSeconds / 60;
+                gameRender.setMinutes(elapsedMinutes);
+                gameRender.setSeconds(secondsDisplay);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        timerThread.start();
+    }
+
+    public void stopGameTimer() {
+        if (timerThread != null) {
+            timerThread.interrupt();
+        }
     }
 
 
@@ -94,6 +123,7 @@ public class GameEngine extends JPanel implements ActionListener {
         initLevel();
         N_GHOSTS = 6;
         currentSpeed = 3;
+        startGameTimer();
     }
 
     private void initLevel() {
@@ -160,6 +190,7 @@ public class GameEngine extends JPanel implements ActionListener {
     private void death() {
         livesLeft--;
         if (livesLeft == 0) {
+            stopGameTimer();
             inGame = false;
         }
         continueLevel();
