@@ -10,13 +10,15 @@ import java.util.List;
 import javax.swing.*;
 
 import pl.game.subclasses.PowerUp;
-import pl.game.subclasses.StatusPanel;
 
 public class GameEngine extends JPanel implements ActionListener {
     public static final int BLOCK_SIZE = 24;
 
     private StatusPanel statusPanel;
     private final GameRender gameRender;
+    private LivesPanel livesPanel;
+
+
     private final Random rand = new Random();
     private final short[] levelData;
     private final int SCREEN_SIZE;
@@ -59,11 +61,13 @@ public class GameEngine extends JPanel implements ActionListener {
         this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
         setLayout(new BorderLayout());
         statusPanel = new StatusPanel();
+        livesPanel = new LivesPanel();
         gameRender = new GameRender(this);
+        add(livesPanel, BorderLayout.SOUTH);
         add(statusPanel, BorderLayout.NORTH); // Position it at the top or wherever it fits best
         add(gameRender, BorderLayout.CENTER);
 
-
+//        pack();
         initVariables();
         initBoard();
     }
@@ -71,6 +75,7 @@ public class GameEngine extends JPanel implements ActionListener {
     public void updateGameStatus(int score, long timeInSeconds, int livesLeft) {
         statusPanel.updateScore(score);
         statusPanel.updateTime(timeInSeconds);
+        livesPanel.setLivesLeft(livesLeft);
         statusPanel.updateLives(livesLeft);
     }
 

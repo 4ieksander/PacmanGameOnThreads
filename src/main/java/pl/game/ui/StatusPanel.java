@@ -1,4 +1,4 @@
-package pl.game.subclasses;
+package pl.game.ui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,6 +6,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 public class StatusPanel extends JPanel {
+    private final int minHeight = 30;
     private int score;
     private long timeInSeconds;
     private int livesLeft;
@@ -17,20 +18,18 @@ public class StatusPanel extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                adjustLayout();  // Adjust layout based on new size
+                adjustLayout();
             }
         });
     }
 
     private void adjustLayout() {
-        // Optionally adjust font size or other attributes based on panel size
         int height = getHeight();
-        font = new Font("Helvetica", Font.BOLD, Math.max(10, height / 2));  // Adjust font size based on panel height
+        font = new Font("Helvetica", Font.BOLD, Math.max(10, height / 2));
     }
     @Override
-    public Dimension getPreferredSize() {
-        // Ensure that the panel does not shrink below the minimum height
-        return new Dimension(super.getPreferredSize().width, Math.max(30, super.getPreferredSize().height));
+    public Dimension getPreferredSize() {   // min height for panel
+        return new Dimension(super.getPreferredSize().width, Math.max(minHeight, super.getPreferredSize().height));
     }
 
     public void updateScore(int score) {
