@@ -7,8 +7,8 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GameRender {
-    private GameEngine game;
+public class GameRender extends JPanel {
+    private GameEngine gameEngine;
     private ImageIcon ghost;
     private ImageIcon pacmanIcon;
     private ImageIcon[] pacmanUpIcons;
@@ -23,16 +23,21 @@ public class GameRender {
     private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
     private final Color dotColor = new Color(192, 192, 0);
     private Color mazeColor;
+    private Rectangle stopButtonRect;
+
 
     public GameRender(GameEngine game) {
-        this.game = game;
+        this.gameEngine = game;
         this.loadAndScaleImages();
         mazeColor = new Color(5, 100, 5);
         startAnimation();
+        stopButtonRect = new Rectangle(420 - 150, 30, 100, 50);  // Zmieniając współrzędne x i y, dostosuj do swojego UI
+
 
     }
 
     public void render(Graphics2D g){
+
         drawPacman(g);
         drawPowerUps(g);
         drawMaze(g);
@@ -41,38 +46,33 @@ public class GameRender {
 
 
 
-
-
-
-
-
     public void drawMaze(Graphics2D g) {
         int index = 0;
-        for (int y = 0; y < game.getScreenSize(); y += game.BLOCK_SIZE) {
-            for (int x = 0; x < game.getScreenSize(); x += game.BLOCK_SIZE) {
+        for (int y = 0; y < gameEngine.getScreenSize(); y += gameEngine.BLOCK_SIZE) {
+            for (int x = 0; x < gameEngine.getScreenSize(); x += gameEngine.BLOCK_SIZE) {
                 g.setColor(mazeColor);
                 g.setStroke(new BasicStroke(2));
 
                 for (int bit = 1; bit <= 16; bit <<= 1) {
                     switch (bit) {
                         case 1:// Vertical line on the left
-                            if ((game.getScreenData()[index] & bit) != 0)
-                                g.drawLine(x, y, x, y + game.BLOCK_SIZE - 1);
+                            if ((gameEngine.getScreenData()[index] & bit) != 0)
+                                g.drawLine(x, y, x, y + gameEngine.BLOCK_SIZE - 1);
                             break;
                         case 2: // Horizontal line at the top
-                            if ((game.getScreenData()[index] & bit) != 0)
-                                g.drawLine(x, y, x + game.BLOCK_SIZE - 1, y);
+                            if ((gameEngine.getScreenData()[index] & bit) != 0)
+                                g.drawLine(x, y, x + gameEngine.BLOCK_SIZE - 1, y);
                             break;
                         case 4: // Vertical line on the right
-                            if ((game.getScreenData()[index] & bit) != 0)
-                                g.drawLine(x + game.BLOCK_SIZE - 1, y, x + game.BLOCK_SIZE - 1, y + game.BLOCK_SIZE - 1);
+                            if ((gameEngine.getScreenData()[index] & bit) != 0)
+                                g.drawLine(x + gameEngine.BLOCK_SIZE - 1, y, x + gameEngine.BLOCK_SIZE - 1, y + gameEngine.BLOCK_SIZE - 1);
                             break;
                         case 8: // Horizontal line at the bottom
-                            if ((game.getScreenData()[index] & bit) != 0)
-                                g.drawLine(x, y + game.BLOCK_SIZE - 1, x + game.BLOCK_SIZE - 1, y + game.BLOCK_SIZE - 1);
+                            if ((gameEngine.getScreenData()[index] & bit) != 0)
+                                g.drawLine(x, y + gameEngine.BLOCK_SIZE - 1, x + gameEngine.BLOCK_SIZE - 1, y + gameEngine.BLOCK_SIZE - 1);
                             break;
                         case 16: // Point to be collected
-                            if ((game.getScreenData()[index] & bit) != 0) {
+                            if ((gameEngine.getScreenData()[index] & bit) != 0) {
                                 g.setColor(dotColor);
                                 g.fillRect(x + 11, y + 11, 2, 2);
                             }
@@ -86,39 +86,39 @@ public class GameRender {
 
 
     public void drawGhost(Graphics2D g, int x, int y) {
-        float alpha = game.isInvulnerable() ? 0.5f : 1f;
+        float alpha = gameEngine.isInvulnerable() ? 0.5f : 1f;
         Composite originalComposite = g.getComposite();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        ghost.paintIcon(game, g, x, y);
+        ghost.paintIcon(gameEngine, g, x, y);
         g.setComposite(originalComposite);
     }
 
 
     public void drawPacman(Graphics2D g) {
-        if (game.getViewDirectionX() == -1) {
+        if (gameEngine.getViewDirectionX() == -1) {
             ImageIcon currentIcon = pacmanLeftIcons[currentImageNumber];
-            currentIcon.paintIcon(game, g, game.getPacmanPosX() - 1, game.getPacmanPosY());
-        } else if (game.getViewDirectionX() == 1) {
+            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX() - 1, gameEngine.getPacmanPosY());
+        } else if (gameEngine.getViewDirectionX() == 1) {
             ImageIcon currentIcon = pacmanRightIcons[currentImageNumber];
-            currentIcon.paintIcon(game, g, game.getPacmanPosX() + 1, game.getPacmanPosY());
-        } else if (game.getViewDirectionY() == -1) {
+            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX() + 1, gameEngine.getPacmanPosY());
+        } else if (gameEngine.getViewDirectionY() == -1) {
             ImageIcon currentIcon = pacmanUpIcons[currentImageNumber];
-            currentIcon.paintIcon(game, g, game.getPacmanPosX(), game.getPacmanPosY() - 1);
+            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() - 1);
         } else {
             ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
-            currentIcon.paintIcon(game, g, game.getPacmanPosX(), game.getPacmanPosY() + 1);
+            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() + 1);
         }}
 
     private void drawPowerUps(Graphics2D g) {
-        for (PowerUp powerUp : game.getActivePowerUps()) {
+        for (PowerUp powerUp : gameEngine.getActivePowerUps()) {
             if (powerUp.isActive()) {
                 ImageIcon icon = powerUpIcons.get(powerUp.type.name());
                 if (icon != null) {
-                    icon.paintIcon(game, g, powerUp.getPosX(), powerUp.getPosY());
+                    icon.paintIcon(gameEngine, g, powerUp.getPosX(), powerUp.getPosY());
                 }
                 else{
                     g.setColor(Color.MAGENTA);
-                    g.fillRect(powerUp.getPosX(), powerUp.getPosY(), game.BLOCK_SIZE, game.BLOCK_SIZE);
+                    g.fillRect(powerUp.getPosX(), powerUp.getPosY(), gameEngine.BLOCK_SIZE, gameEngine.BLOCK_SIZE);
                 }
             }
         }
@@ -132,14 +132,14 @@ public class GameRender {
 
         g.setFont(smallFont);
         g.setColor(new Color(96, 128, 255));
-        s = "Score: " + game.getScore();
-        g.drawString(s, game.getScreenSize() / 2 + 96, game.getScreenSize() + 16);
+        s = "Score: " + gameEngine.getScore();
+        g.drawString(s, gameEngine.getScreenSize() / 2 + 96, gameEngine.getScreenSize() + 16);
 
         String timeText = String.format("Czas: %02d:%02d", minutes, seconds);
-        g.drawString(timeText, game.getScreenSize() / 2 - 40, game.getScreenSize() + 16);
+        g.drawString(timeText, gameEngine.getScreenSize() / 2 - 40, gameEngine.getScreenSize() + 16);
 
-        for (i = 0; i < game.getLivesLeft(); i++) {
-            pacmanIcon.paintIcon(game, g, i * 28 + 8, game.getScreenSize() + 1);
+        for (i = 0; i < gameEngine.getLivesLeft(); i++) {
+            pacmanIcon.paintIcon(gameEngine, g, i * 28 + 8, gameEngine.getScreenSize() + 1);
         }
     }
 
@@ -147,15 +147,15 @@ public class GameRender {
 
     public void showIntroScreen (Graphics2D g){
         g.setColor(new Color(0, 32, 48));
-        g.fillRect(50, game.getScreenSize() / 2 - 30, game.getScreenSize() - 100, 50);
+        g.fillRect(50, gameEngine.getScreenSize() / 2 - 30, gameEngine.getScreenSize() - 100, 50);
 
         String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
-        FontMetrics metr = game.getFontMetrics(small);
+        FontMetrics metr = gameEngine.getFontMetrics(small);
 
         g.setColor(Color.WHITE); // background for text
         g.setFont(small);
-        g.drawString(s, (game.getScreenSize() - metr.stringWidth(s)) / 2, game.getScreenSize()/ 2);
+        g.drawString(s, (gameEngine.getScreenSize() - metr.stringWidth(s)) / 2, gameEngine.getScreenSize()/ 2);
     }
 
 
@@ -165,7 +165,7 @@ public class GameRender {
                 try {
                     currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
                     Thread.sleep(PAC_ANIM_DELAY);
-                    game.repaint();
+                    gameEngine.repaint();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -234,3 +234,4 @@ public class GameRender {
         this.seconds = seconds;
     }
 }
+

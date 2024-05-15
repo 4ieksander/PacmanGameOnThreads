@@ -1,23 +1,21 @@
 package pl.game.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Event;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 import pl.game.subclasses.PowerUp;
+import pl.game.subclasses.StatusPanel;
 
 public class GameEngine extends JPanel implements ActionListener {
     public static final int BLOCK_SIZE = 24;
 
+    private StatusPanel statusPanel;
     private final GameRender gameRender;
     private final Random rand = new Random();
     private final short[] levelData;
@@ -58,10 +56,22 @@ public class GameEngine extends JPanel implements ActionListener {
     public GameEngine(short[] levelData, int N_BLOCKS) {
         this.N_BLOCKS = N_BLOCKS;
         this.levelData = levelData;
-         this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
+        this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
+        setLayout(new BorderLayout());
+        statusPanel = new StatusPanel();
         gameRender = new GameRender(this);
+        add(statusPanel, BorderLayout.NORTH); // Position it at the top or wherever it fits best
+        add(gameRender, BorderLayout.CENTER);
+
+
         initVariables();
         initBoard();
+    }
+
+    public void updateGameStatus(int score, long timeInSeconds, int livesLeft) {
+        statusPanel.updateScore(score);
+        statusPanel.updateTime(timeInSeconds);
+        statusPanel.updateLives(livesLeft);
     }
 
     public void startGameTimer() {
@@ -170,6 +180,7 @@ public class GameEngine extends JPanel implements ActionListener {
             movePacman();
             moveGhosts(g);
             gameRender.render(g);
+            updateGameStatus(score, (gameRender.getMinutes()*60+gameRender.getSeconds()), livesLeft);
             checkMaze();
        }
     }
