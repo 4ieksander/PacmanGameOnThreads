@@ -93,9 +93,9 @@ public class PacmanMenu extends JFrame {
                 case "Large":
                     board = new LargeBoard();
                     break;
-//                case "Extra Large":
-//                    board = new ExtraLargeBoard();
-//                    break;
+                case "Extra Large":
+                    board = new ExtraLargeBoard();
+                    break;
                 default:
                     throw new BoardDoesNotExistException("The selected board size does not exist: " + size);
             }

@@ -8,7 +8,6 @@ public class LargeBoard implements IBoard {
     private final int N_BLOCKS = 16;  // Zwiększone o 1
     private final int SCREEN_SIZE = GameEngine.BLOCK_SIZE * N_BLOCKS;
 
-    // Tutaj trzeba dodać nowe wartości do levelData, żeby pasowało do większej planszy
     private final short[] levelData = {
             19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
             17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
