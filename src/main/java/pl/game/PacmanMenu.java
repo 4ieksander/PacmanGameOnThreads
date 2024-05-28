@@ -84,9 +84,9 @@ public class PacmanMenu extends JFrame {
 //                case "Extra Small":
 //                    board = new ExtraSmallBoard();
 //                    break;
-//                case "Small":
-//                    board = new SmallBoard();
-//                    break;
+                case "Small":
+                    board = new SmallBoard();
+                    break;
                 case "Medium":
                     board = new MediumBoard();
                     break;
