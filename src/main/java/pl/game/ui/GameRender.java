@@ -28,14 +28,13 @@ public class GameRender extends JPanel {
 
 
 
-    public GameRender(GameEngine game) {
-        this.gameEngine = game;
+    public GameRender(int screenSize) {
         this.loadAndScaleImages();
         mazeColor = new Color(5, 100, 5);
         startAnimation();
         stopButtonRect = new Rectangle(420 - 150, 30, 100, 50);  // Zmieniając współrzędne x i y, dostosuj do swojego UI
 
-        dimension = new Dimension(gameEngine.getScreenSize()+40, gameEngine.getScreenSize()+40);
+        dimension = new Dimension(screenSize + 40, screenSize+40);
 
     }
 
@@ -91,7 +90,7 @@ public class GameRender extends JPanel {
         float alpha = gameEngine.isInvulnerable() ? 0.5f : 1f;
         Composite originalComposite = g.getComposite();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        ghost.paintIcon(gameEngine, g, x, y);
+        ghost.paintIcon(this, g, x, y);
         g.setComposite(originalComposite);
     }
 
@@ -99,16 +98,16 @@ public class GameRender extends JPanel {
     public void drawPacman(Graphics2D g) {
         if (gameEngine.getViewDirectionX() == -1) {
             ImageIcon currentIcon = pacmanLeftIcons[currentImageNumber];
-            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX() - 1, gameEngine.getPacmanPosY());
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() - 1, gameEngine.getPacmanPosY());
         } else if (gameEngine.getViewDirectionX() == 1) {
             ImageIcon currentIcon = pacmanRightIcons[currentImageNumber];
-            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX() + 1, gameEngine.getPacmanPosY());
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() + 1, gameEngine.getPacmanPosY());
         } else if (gameEngine.getViewDirectionY() == -1) {
             ImageIcon currentIcon = pacmanUpIcons[currentImageNumber];
-            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() - 1);
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() - 1);
         } else {
             ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
-            currentIcon.paintIcon(gameEngine, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() + 1);
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() + 1);
         }}
 
     private void drawPowerUps(Graphics2D g) {
@@ -116,7 +115,7 @@ public class GameRender extends JPanel {
             if (powerUp.isActive()) {
                 ImageIcon icon = powerUpIcons.get(powerUp.type.name());
                 if (icon != null) {
-                    icon.paintIcon(gameEngine, g, powerUp.getPosX(), powerUp.getPosY());
+                    icon.paintIcon(this, g, powerUp.getPosX(), powerUp.getPosY());
                 }
                 else{
                     g.setColor(Color.MAGENTA);
@@ -141,7 +140,7 @@ public class GameRender extends JPanel {
         g.drawString(timeText, gameEngine.getScreenSize() / 2 - 40, gameEngine.getScreenSize() + 16);
 
         for (i = 0; i < gameEngine.getLivesLeft(); i++) {
-            pacmanIcon.paintIcon(gameEngine, g, i * 28 + 8, gameEngine.getScreenSize() + 1);
+            pacmanIcon.paintIcon(this, g, i * 28 + 8, gameEngine.getScreenSize() + 1);
         }
     }
 
@@ -153,11 +152,11 @@ public class GameRender extends JPanel {
 
         String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
-        FontMetrics metr = gameEngine.getFontMetrics(small);
+//        FontMetrics metr = gameEngine.getFontMetrics(small);
 
         g.setColor(Color.WHITE); // background for text
         g.setFont(small);
-        g.drawString(s, (gameEngine.getScreenSize() - metr.stringWidth(s)) / 2, gameEngine.getScreenSize()/ 2);
+//        g.drawString(s, (gameEngine.getScreenSize() - metr.stringWidth(s)) / 2, gameEngine.getScreenSize()/ 2);
     }
 
 
@@ -167,7 +166,7 @@ public class GameRender extends JPanel {
                 try {
                     currentImageNumber = (currentImageNumber + 1) % PACMAN_IMAGES_COUNT;
                     Thread.sleep(PAC_ANIM_DELAY);
-                    gameEngine.repaint();
+                    repaint();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -255,6 +254,10 @@ public class GameRender extends JPanel {
 
     public void setSeconds(long seconds) {
         this.seconds = seconds;
+    }
+
+    public void setGameEngine(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
     }
 }
 

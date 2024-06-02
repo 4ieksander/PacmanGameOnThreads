@@ -1,17 +1,14 @@
 package pl.game.ui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
 
 import pl.game.subclasses.PowerUp;
 
-public class GameEngine extends JFrame implements ActionListener {
+public class GameEngine{
     public static final int BLOCK_SIZE = 24;
 
     private StatusPanel statusPanel;
@@ -54,21 +51,17 @@ public class GameEngine extends JFrame implements ActionListener {
     private Thread timerThread;
 
 
-    public GameEngine(short[] levelData, int N_BLOCKS) {
+    public GameEngine(short[] levelData, int N_BLOCKS, StatusPanel statusPanel, LivesPanel livesPanel, GameRender gameRender) {
         this.N_BLOCKS = N_BLOCKS;
         this.levelData = levelData;
         this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
-        setLayout(new BorderLayout());
-        statusPanel = new StatusPanel();
-        livesPanel = new LivesPanel();
-        gameRender = new GameRender(this);
-        add(livesPanel, BorderLayout.SOUTH);
-        add(statusPanel, BorderLayout.NORTH); // Position it at the top or wherever it fits best
-        add(gameRender, BorderLayout.CENTER);
+        this.statusPanel = statusPanel;
+        this.livesPanel = livesPanel;
+        this.gameRender = gameRender;
+        gameRender.setGameEngine(this);
 
 //        pack();
         initVariables();
-        initBoard();
     }
 
     public void updateGameStatus(int score, long timeInSeconds, int livesLeft) {
@@ -105,12 +98,6 @@ public class GameEngine extends JFrame implements ActionListener {
     }
 
 
-    private void initBoard() {
-        System.out.println("Board size set to: " + SCREEN_SIZE + "x" + SCREEN_SIZE);
-        addKeyListener(new TAdapter());
-        setFocusable(true);
-        setBackground(Color.WHITE);
-    }
 
     private void initVariables() {
         screenData = new short[N_BLOCKS * N_BLOCKS];
@@ -130,7 +117,7 @@ public class GameEngine extends JFrame implements ActionListener {
         startPowerUpGenerator();
     }
 
-    private void initGame() {
+    public void initGame() {
         livesLeft = 3;
         score = 0;
         initLevel();
@@ -376,17 +363,8 @@ public class GameEngine extends JFrame implements ActionListener {
                 .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        gameRender.repaint();
-    }
 
 
-    @Override
-    public void addNotify() {
-        super.addNotify();
-        initGame();
-    }
 
     public void resetGhostSpeed() {
         for (int i = 0; i < N_GHOSTS; i++) {
@@ -461,54 +439,23 @@ public class GameEngine extends JFrame implements ActionListener {
         return inGame;
     }
 
-    class TAdapter extends KeyAdapter {
+    public int getTempDirY() {
+        return tempDirY;
+    }
 
-        @Override
-        public void keyPressed(KeyEvent e) {
+    public void setTempDirY(int tempDirY) {
+        this.tempDirY = tempDirY;
+    }
 
-            int key = e.getKeyCode();
+    public int getTempDirX() {
+        return tempDirX;
+    }
 
-            if (inGame) {
-                switch (key) {
-                    case KeyEvent.VK_LEFT:
-                        tempDirX = -1;
-                        tempDirY = 0;
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        tempDirX = 1;
-                        tempDirY = 0;
-                        break;
-                    case KeyEvent.VK_UP:
-                        tempDirX = 0;
-                        tempDirY = -1;
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        tempDirX = 0;
-                        tempDirY = 1;
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                if (key == KeyEvent.VK_SPACE || key == KeyEvent.VK_ENTER) {
-                    inGame = true;
-                    initGame();
-                }
-            }
-        }
+    public void setTempDirX(int tempDirX) {
+        this.tempDirX = tempDirX;
+    }
 
-
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-
-            int key = e.getKeyCode();
-
-            if (key == Event.LEFT || key == Event.RIGHT
-                    || key == Event.UP || key == Event.DOWN) {
-                tempDirX = 0;
-                tempDirY = 0;
-            }
-        }
+    public void setInGame(boolean inGame) {
+        this.inGame = inGame;
     }
 }
