@@ -64,7 +64,7 @@ public class PacmanMenu extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(5, 1, 10, 10));
 
-        String[] boardSizes = {"Extra Small", "Small", "Medium", "Large", "Extra Large"};
+        String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
         for (String size : boardSizes) {
             JButton sizeButton = new JButton(size);
             sizeButton.addActionListener(e -> {
@@ -81,9 +81,6 @@ public class PacmanMenu extends JFrame {
     private void selectBoard(String size) {
         try {
             switch (size) {
-//                case "Extra Small":
-//                    board = new ExtraSmallBoard();
-//                    break;
                 case "Small":
                     board = new SmallBoard();
                     break;
@@ -95,6 +92,9 @@ public class PacmanMenu extends JFrame {
                     break;
                 case "Extra Large":
                     board = new ExtraLargeBoard();
+                    break;
+                case "Huge":
+                    board = new HugeBoard();
                     break;
                 default:
                     throw new BoardDoesNotExistException("The selected board size does not exist: " + size);
