@@ -7,6 +7,8 @@ import java.util.List;
 import javax.swing.*;
 
 import pl.game.subclasses.PowerUp;
+import pl.game.subclasses.ScoreManager;
+import pl.game.subclasses.ScoreEntry;
 
 public class GameEngine{
     public static final int BLOCK_SIZE = 24;
@@ -180,6 +182,13 @@ public class GameEngine{
         if (livesLeft == 0) {
             stopGameTimer();
             inGame = false;
+            String playerName = JOptionPane.showInputDialog(gameRender, "Enter your name:");
+            if (playerName != null && !playerName.isEmpty()) {
+                ScoreManager scoreManager = new ScoreManager();
+                List<ScoreEntry> scores = scoreManager.loadScores();
+                scores.add(new ScoreEntry(playerName, score));
+                scoreManager.saveScores(scores);
+        }
         }
         continueLevel();
     }

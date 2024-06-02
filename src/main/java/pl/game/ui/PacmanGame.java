@@ -2,17 +2,18 @@ package pl.game.ui;
 
 import pl.game.boards.MediumBoard;
 import pl.game.interfaces.IBoard;
+import pl.game.subclasses.ScoreEntry;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import javax.swing.JFrame;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import javax.swing.JFrame;
+import java.util.List;
+import java.util.Random;
+
+
 public class PacmanGame extends JFrame implements ActionListener {
     private IBoard board;
     private GameEngine gameEngine;
@@ -27,8 +28,9 @@ public class PacmanGame extends JFrame implements ActionListener {
         gameRender = new GameRender(GameEngine.BLOCK_SIZE * board.getN_BLOCKS());
         statusPanel = new StatusPanel();
         livesPanel = new LivesPanel();
-        gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender);
 
+
+        gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender);
 
         initUI();
     }
