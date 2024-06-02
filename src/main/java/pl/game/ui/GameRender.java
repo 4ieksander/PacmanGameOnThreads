@@ -152,11 +152,11 @@ public class GameRender extends JPanel {
 
         String s = "Press enter or space to start.";
         Font small = new Font("Helvetica", Font.BOLD, 14);
-//        FontMetrics metr = gameEngine.getFontMetrics(small);
+        FontMetrics metr = this.getFontMetrics(small);
 
         g.setColor(Color.WHITE); // background for text
         g.setFont(small);
-//        g.drawString(s, (gameEngine.getScreenSize() - metr.stringWidth(s)) / 2, gameEngine.getScreenSize()/ 2);
+        g.drawString(s, (gameEngine.getScreenSize() - metr.stringWidth(s)) / 2, gameEngine.getScreenSize()/ 2);
     }
 
 
