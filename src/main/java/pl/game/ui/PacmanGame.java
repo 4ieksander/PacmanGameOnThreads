@@ -24,8 +24,7 @@ public class PacmanGame extends JFrame implements ActionListener {
 
     public PacmanGame(IBoard board) {
         this.board = board;
-
-        gameRender = new GameRender(100);
+        gameRender = new GameRender(GameEngine.BLOCK_SIZE * board.getN_BLOCKS());
         statusPanel = new StatusPanel();
         livesPanel = new LivesPanel();
         gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender);
@@ -40,11 +39,12 @@ public class PacmanGame extends JFrame implements ActionListener {
         add(statusPanel, BorderLayout.NORTH); // Position it at the top or wherever it fits best
         add(gameRender, BorderLayout.CENTER);
         int screen = GameEngine.BLOCK_SIZE * board.getN_BLOCKS();
+
         System.out.println(board.getN_BLOCKS());
         System.out.println(screen);
         setTitle("Pacman - " + board.getName());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(board.getSCREEN_SIZE()+20, board.getSCREEN_SIZE()+60);
+        setSize(board.getSCREEN_SIZE()+18, board.getSCREEN_SIZE()+100);
         setLocationRelativeTo(null);
         setVisible(true);
         setLayout(new BorderLayout());
