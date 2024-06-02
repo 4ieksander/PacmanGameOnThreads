@@ -24,6 +24,8 @@ public class GameRender extends JPanel {
     private final Color dotColor = new Color(192, 192, 0);
     private Color mazeColor;
     private Rectangle stopButtonRect;
+    private Dimension dimension;
+
 
 
     public GameRender(GameEngine game) {
@@ -33,15 +35,15 @@ public class GameRender extends JPanel {
         startAnimation();
         stopButtonRect = new Rectangle(420 - 150, 30, 100, 50);  // Zmieniając współrzędne x i y, dostosuj do swojego UI
 
+        dimension = new Dimension(gameEngine.getScreenSize()+40, gameEngine.getScreenSize()+40);
 
     }
 
     public void render(Graphics2D g){
-
         drawPacman(g);
         drawPowerUps(g);
         drawMaze(g);
-        drawScore(g);
+//        drawScore(g);
     }
 
 
@@ -217,6 +219,27 @@ public class GameRender extends JPanel {
         Image image= new ImageIcon(path).getImage();
         return new ImageIcon(image.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
     }
+
+    private void doDrawing(Graphics g) {
+        Graphics2D graphics = (Graphics2D) g;
+        g.setColor(Color.BLACK); // global background
+        g.fillRect(0, 0, dimension.width, dimension.height);
+        this.render(graphics);
+        if (gameEngine.isInGame()){
+            gameEngine.playGame(graphics);
+        } else {
+            this.showIntroScreen(graphics);
+        }
+        Toolkit.getDefaultToolkit().sync();
+        g.dispose();
+    }
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        doDrawing(g);
+    }
+
+
 
     public long getMinutes() {
         return minutes;

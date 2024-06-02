@@ -3,7 +3,7 @@ package pl.game.ui;
 import pl.game.boards.MediumBoard;
 import pl.game.interfaces.IBoard;
 
-import java.awt.EventQueue;
+import java.awt.*;
 import javax.swing.JFrame;
 
 public class PacmanGame extends JFrame {
@@ -13,6 +13,7 @@ public class PacmanGame extends JFrame {
         this.board = board;
         initUI();
     }
+
 
     private void initUI() {
         add(new GameEngine(board.getLevelData(), board.getN_BLOCKS()));
@@ -35,4 +36,9 @@ public class PacmanGame extends JFrame {
             ex.setVisible(true);
         });
     }
+
+
+
+
+
 }

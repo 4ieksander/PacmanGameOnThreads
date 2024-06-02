@@ -11,7 +11,7 @@ import javax.swing.*;
 
 import pl.game.subclasses.PowerUp;
 
-public class GameEngine extends JPanel implements ActionListener {
+public class GameEngine extends JFrame implements ActionListener {
     public static final int BLOCK_SIZE = 24;
 
     private StatusPanel statusPanel;
@@ -32,7 +32,6 @@ public class GameEngine extends JPanel implements ActionListener {
 
     private boolean isInvulnerable = false;
 
-    private Dimension dimension;
 
     private boolean inGame = false;
     private boolean dying = false;
@@ -118,7 +117,6 @@ public class GameEngine extends JPanel implements ActionListener {
         System.out.println("Screen Data Length: " + screenData.length);
         System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
         scoreMultipler = 1;
-        dimension = new Dimension(SCREEN_SIZE+40, SCREEN_SIZE+40);
         int MAX_GHOSTS = 12;
         ghostPosX = new int[MAX_GHOSTS];
         ghostDirX = new int[MAX_GHOSTS];
@@ -153,7 +151,7 @@ public class GameEngine extends JPanel implements ActionListener {
         Thread gameThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    SwingUtilities.invokeLater(this::repaint);
+                    SwingUtilities.invokeLater(gameRender::repaint);
                     Thread.sleep(40);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -164,21 +162,8 @@ public class GameEngine extends JPanel implements ActionListener {
     }
 
 
-    private void doDrawing(Graphics g) {
-        Graphics2D graphics = (Graphics2D) g;
-        g.setColor(Color.BLACK); // global background
-        g.fillRect(0, 0, dimension.width, dimension.height);
-        gameRender.render(graphics);
-        if (inGame) {
-            playGame(graphics);
-        } else {
-            gameRender.showIntroScreen(graphics);
-        }
-        Toolkit.getDefaultToolkit().sync();
-        g.dispose();
-    }
 
-    private void playGame(Graphics2D g) {
+    public void playGame(Graphics2D g) {
         if (dying) {
             death();
         } else {
@@ -370,7 +355,7 @@ public class GameEngine extends JPanel implements ActionListener {
             PowerUp newPowerUp = new PowerUp(type, posX * BLOCK_SIZE, posY * BLOCK_SIZE, this);
             SwingUtilities.invokeLater(() -> {
                 activePowerUps.add(newPowerUp);
-                repaint();
+                gameRender.repaint();
             });
         }
     }
@@ -393,14 +378,9 @@ public class GameEngine extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        repaint();
+        gameRender.repaint();
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        doDrawing(g);
-    }
 
     @Override
     public void addNotify() {
@@ -477,6 +457,10 @@ public class GameEngine extends JPanel implements ActionListener {
         this.scoreMultipler = scoreMultipler;
     }
 
+    public boolean isInGame() {
+        return inGame;
+    }
+
     class TAdapter extends KeyAdapter {
 
         @Override
@@ -512,6 +496,8 @@ public class GameEngine extends JPanel implements ActionListener {
                 }
             }
         }
+
+
 
         @Override
         public void keyReleased(KeyEvent e) {
