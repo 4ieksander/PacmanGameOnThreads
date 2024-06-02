@@ -30,7 +30,7 @@ public class PacmanMenu extends JFrame {
         cards = new JPanel(new CardLayout());
 
         JPanel menuPanel = new JPanel();
-        JButton newGameButton = new JButton("New Game");
+        JButton newGameButton = createButton("New Game");
         newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,9 +38,9 @@ public class PacmanMenu extends JFrame {
             }
         });
 
-        JButton highScoreButton = new JButton("High Score");
+        JButton highScoreButton = createButton("High Score");
 
-        JButton exitButton = new JButton("Exit");
+        JButton exitButton = createButton("Exit");
         exitButton.addActionListener(e -> System.exit(0));
 
         JPanel gamePanel = new JPanel();
@@ -66,7 +66,7 @@ public class PacmanMenu extends JFrame {
 
         String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
         for (String size : boardSizes) {
-            JButton sizeButton = new JButton(size);
+            JButton sizeButton = createButton(size);
             sizeButton.addActionListener(e -> {
                 selectBoard(size);
                 boardSizeFrame.dispose();
@@ -113,6 +113,16 @@ public class PacmanMenu extends JFrame {
             ex.setVisible(true);
         });
     }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setBackground(new Color(25, 150, 70));
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setPreferredSize(new Dimension(200, 50));
+        return button;
+    }
+
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
