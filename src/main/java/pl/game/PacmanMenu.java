@@ -5,6 +5,7 @@ import pl.game.ui.PacmanGame;
 import pl.game.interfaces.IBoard;
 import pl.game.exceptions.BoardDoesNotExistException;
 import pl.game.subclasses.Style;
+import pl.game.ui.ScoreWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +31,10 @@ public class PacmanMenu extends JFrame {
         cards = new JPanel(new CardLayout());
 
         JPanel menuPanel = new JPanel();
+        menuPanel.setBackground(Style.BACKGROUND_COLOR);
+        menuPanel.setForeground(Style.TEXT_COLOR);
+        menuPanel.setFont(Style.TEXT_FONT);
+
         JButton newGameButton = Style.createButton("New Game");
         newGameButton.addActionListener(new ActionListener() {
             @Override
@@ -39,6 +44,12 @@ public class PacmanMenu extends JFrame {
         });
 
         JButton highScoreButton = Style.createButton("High Score");
+        highScoreButton.addActionListener(e -> {
+            EventQueue.invokeLater(() -> {
+                var scoreWindow = new ScoreWindow();
+                scoreWindow.setVisible(true);
+            });
+        });
 
         JButton exitButton = Style.createButton("Exit");
         exitButton.addActionListener(e -> System.exit(0));
@@ -61,8 +72,13 @@ public class PacmanMenu extends JFrame {
         boardSizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         boardSizeFrame.setLocationRelativeTo(null);
 
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(5, 1, 10, 10));
+
+        panel.setBackground(Style.BACKGROUND_COLOR);
+        panel.setForeground(Style.TEXT_COLOR);
+        panel.setFont(Style.TEXT_FONT);
 
         String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
         for (String size : boardSizes) {

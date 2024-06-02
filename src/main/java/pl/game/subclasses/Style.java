@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Style {
-    public static final Color BACKGROUND_COLOR = new Color(25, 25, 112);
+    public static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
     public static final Color TEXT_COLOR = Color.WHITE;
     public static final Font TEXT_FONT = new Font("Arial", Font.BOLD, 14);
 

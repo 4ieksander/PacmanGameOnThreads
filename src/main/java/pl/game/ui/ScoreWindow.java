@@ -32,6 +32,8 @@ public class ScoreWindow extends JFrame {
         add(scrollPane, BorderLayout.CENTER);
 
         getContentPane().setBackground(Style.BACKGROUND_COLOR);
+        setLocationRelativeTo(null);
+
     }
 
     private void displayScores() {
@@ -45,7 +47,6 @@ public class ScoreWindow extends JFrame {
             ScoreWindow frame = new ScoreWindow();
             frame.setVisible(true);
 
-            // Symulacja zakończenia gry i wprowadzenia imienia
             String playerName = JOptionPane.showInputDialog(frame, "Enter your name:");
             if (playerName != null && !playerName.isEmpty()) {
                 int score = new Random().nextInt(100); // Losowy wynik
