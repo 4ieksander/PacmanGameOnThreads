@@ -4,7 +4,7 @@ import pl.game.boards.*;
 import pl.game.ui.PacmanGame;
 import pl.game.interfaces.IBoard;
 import pl.game.exceptions.BoardDoesNotExistException;
-
+import pl.game.subclasses.Style;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +30,7 @@ public class PacmanMenu extends JFrame {
         cards = new JPanel(new CardLayout());
 
         JPanel menuPanel = new JPanel();
-        JButton newGameButton = createButton("New Game");
+        JButton newGameButton = Style.createButton("New Game");
         newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,9 +38,9 @@ public class PacmanMenu extends JFrame {
             }
         });
 
-        JButton highScoreButton = createButton("High Score");
+        JButton highScoreButton = Style.createButton("High Score");
 
-        JButton exitButton = createButton("Exit");
+        JButton exitButton = Style.createButton("Exit");
         exitButton.addActionListener(e -> System.exit(0));
 
         JPanel gamePanel = new JPanel();
@@ -66,7 +66,7 @@ public class PacmanMenu extends JFrame {
 
         String[] boardSizes = {"Small", "Medium", "Large", "Extra Large", "Huge"};
         for (String size : boardSizes) {
-            JButton sizeButton = createButton(size);
+            JButton sizeButton = Style.createButton(size);
             sizeButton.addActionListener(e -> {
                 selectBoard(size);
                 boardSizeFrame.dispose();
@@ -114,14 +114,6 @@ public class PacmanMenu extends JFrame {
         });
     }
 
-    private JButton createButton(String text) {
-        JButton button = new JButton(text);
-        button.setBackground(new Color(25, 150, 70));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setPreferredSize(new Dimension(200, 50));
-        return button;
-    }
 
 
     public static void main(String[] args) {
