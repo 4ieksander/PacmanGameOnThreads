@@ -8,13 +8,6 @@ public abstract class AutomaticBoard implements IBoard {
     protected int SCREEN_SIZE;
     protected short[] levelData;
 
-//    public AutomaticBoard() {
-//        drawBoard();
-//        addLargeSquare(10, 10, 6);
-//        addLargeSquare(25, 25, 8);
-//        addLargeSquare(15, 30, 5);
-//    }
-
     protected void drawBoard(){
         for (int i = 0; i < N_BLOCKS; i++) {
             for (int j = 0; j < N_BLOCKS; j++) {
