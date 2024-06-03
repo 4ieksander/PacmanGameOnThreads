@@ -50,9 +50,6 @@ public class GameEngine{
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
 
 
-
-
-
     public GameEngine(short[] levelData, int N_BLOCKS, StatusPanel statusPanel, LivesPanel livesPanel, GameRender gameRender, GameFrame gameFrame){
         this.N_BLOCKS = N_BLOCKS;
         this.levelData = levelData;
@@ -62,92 +59,8 @@ public class GameEngine{
         this.gameRender = gameRender;
         this.gameFrame = gameFrame;
         gameRender.setGameEngine(this);
-
-//        pack();
         initVariables();
     }
-
-    public void updateGameStatus(int score, long timeInSeconds, int livesLeft) {
-        statusPanel.updateScore(score);
-        statusPanel.updateTime(timeInSeconds);
-        livesPanel.setLivesLeft(livesLeft);
-        statusPanel.updateLives(livesLeft);
-    }
-
-    public void startGameTimer() {
-        startTime = System.currentTimeMillis();
-        timerThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                long elapsedTime = System.currentTimeMillis() - startTime;
-                elapsedSeconds = elapsedTime / 1000;
-                long secondsDisplay = elapsedSeconds % 60;
-                long elapsedMinutes = elapsedSeconds / 60;
-                gameRender.setMinutes(elapsedMinutes);
-                gameRender.setSeconds(secondsDisplay);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        timerThread.start();
-    }
-
-    public void stopGameTimer() {
-        if (timerThread != null) {
-            timerThread.interrupt();
-        }
-    }
-
-
-
-    private void initVariables() {
-        screenData = new short[N_BLOCKS * N_BLOCKS];
-        scoreMultipler = 1;
-        int MAX_GHOSTS = 12;
-        ghostPosX = new int[MAX_GHOSTS];
-        ghostDirX = new int[MAX_GHOSTS];
-        ghostPosY = new int[MAX_GHOSTS];
-        ghostDirY = new int[MAX_GHOSTS];
-        ghostSpeed = new int[MAX_GHOSTS];
-        ghostMoveOptionX = new int[4];
-        ghostMoveOptionY = new int[4];
-
-        startGameThread();
-        startPowerUpGenerator();
-    }
-
-    public void initGame() {
-        livesLeft = 3;
-        score = 0;
-        initLevel();
-        N_GHOSTS = 6;
-        startGameTimer();
-    }
-
-    private void initLevel() {
-        int i;
-        for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
-            screenData[i] = levelData[i];
-        }
-        continueLevel();
-    }
-
-    private void startGameThread() {
-        Thread gameThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SwingUtilities.invokeLater(gameRender::repaint);
-                    Thread.sleep(40);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        gameThread.start();
-    }
-
 
 
     public void playGame(Graphics2D g) {
@@ -159,27 +72,21 @@ public class GameEngine{
             gameRender.render(g);
             updateGameStatus(score, (gameRender.getMinutes()*60+gameRender.getSeconds()), livesLeft);
             checkMaze();
-       }
-    }
-
-
-    private void checkMaze() {
-        short i = 0;
-        boolean finished = true;
-        while (i < N_BLOCKS * N_BLOCKS && finished) {
-            if ((screenData[i] & 48) != 0) {
-                finished = false;
-            }
-            i++;
         }
     }
 
-    private void death() {
-        livesLeft--;
-        if (livesLeft <= 0) {
-            gameFrame.endGame();
+    public void initGame() {
+        livesLeft = 3;
+        score = 0;
+        initLevel();
+        N_GHOSTS = 6;
+        startGameTimer();
+    }
+
+    public void stopGameTimer() {
+        if (timerThread != null) {
+            timerThread.interrupt();
         }
-        continueLevel();
     }
 
     public void saveScore(){
@@ -192,6 +99,22 @@ public class GameEngine{
             scoreManager.saveScores(scores);
         }
     }
+
+    private void updateGameStatus(int score, long timeInSeconds, int livesLeft) {
+        statusPanel.updateScore(score);
+        statusPanel.updateTime(timeInSeconds);
+        livesPanel.setLivesLeft(livesLeft);
+        statusPanel.updateLives(livesLeft);
+    }
+
+    private void initLevel() {
+        int i;
+        for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
+            screenData[i] = levelData[i];
+        }
+        continueLevel();
+    }
+
 
     private void continueLevel() {
         short i;
@@ -215,6 +138,79 @@ public class GameEngine{
         dying = false;
     }
 
+    private void initVariables() {
+        screenData = new short[N_BLOCKS * N_BLOCKS];
+        scoreMultipler = 1;
+        int MAX_GHOSTS = 12;
+        ghostPosX = new int[MAX_GHOSTS];
+        ghostDirX = new int[MAX_GHOSTS];
+        ghostPosY = new int[MAX_GHOSTS];
+        ghostDirY = new int[MAX_GHOSTS];
+        ghostSpeed = new int[MAX_GHOSTS];
+        ghostMoveOptionX = new int[4];
+        ghostMoveOptionY = new int[4];
+
+        startGameThread();
+        startPowerUpGenerator();
+    }
+
+    private void startGameThread() {
+        Thread gameThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SwingUtilities.invokeLater(gameRender::repaint);
+                    Thread.sleep(40);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        gameThread.start();
+    }
+
+    private void startGameTimer() {
+        startTime = System.currentTimeMillis();
+        timerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                elapsedSeconds = elapsedTime / 1000;
+                long secondsDisplay = elapsedSeconds % 60;
+                long elapsedMinutes = elapsedSeconds / 60;
+                gameRender.setMinutes(elapsedMinutes);
+                gameRender.setSeconds(secondsDisplay);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        timerThread.start();
+    }
+
+    private void checkMaze() {
+        short i = 0;
+        boolean finished = true;
+        while (i < N_BLOCKS * N_BLOCKS && finished) {
+            if ((screenData[i] & 48) != 0) {
+                finished = false;
+            }
+            i++;
+        }
+    }
+
+    private void death() {
+        livesLeft--;
+        if (livesLeft <= 0) {
+            gameFrame.endGame();
+        }
+        continueLevel();
+    }
+
+
+
+
+    // Move objects
     private void moveGhosts(Graphics2D g) {
         for (int i = 0; i < N_GHOSTS; i++) {
             int nextX = ghostPosX[i] + ghostDirX[i] * ghostSpeed[i];
@@ -277,6 +273,12 @@ public class GameEngine{
         System.out.println("Resetting ghost " + ghostIndex + " to default position.");
     }
 
+    public void resetGhostSpeed() {
+        for (int i = 0; i < N_GHOSTS; i++) {
+            setGhostSpeed(i, getValidSpeeds()[rand.nextInt(getValidSpeeds().length)]);
+        }
+    }
+
     private void movePacman() {
         int pos;
         short ch;
@@ -322,7 +324,8 @@ public class GameEngine{
         pacmanPosY = pacmanPosY + PACMAN_SPEED * PacmanDirY;
     }
 
-    // Boosters
+
+    // Power ups
     private void startPowerUpGenerator() {
         Thread powerUpGenerator = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -367,6 +370,7 @@ public class GameEngine{
         }
     }
 
+
     private boolean isValidLocation(int x, int y) {
         return screenData[y * N_BLOCKS + x] == 0 && activePowerUps.stream()
                 .noneMatch(p -> p.getPosX() == x * BLOCK_SIZE && p.getPosY() == y * BLOCK_SIZE);
@@ -375,16 +379,8 @@ public class GameEngine{
 
 
 
-    public void resetGhostSpeed() {
-        for (int i = 0; i < N_GHOSTS; i++) {
-            setGhostSpeed(i, getValidSpeeds()[rand.nextInt(getValidSpeeds().length)]);
-        }
-    }
     public int[] getGhostSpeed() {
         return ghostSpeed;
-    }
-    public void setGhostSpeed(int[] ghostSpeed) {
-        this.ghostSpeed = ghostSpeed;
     }
     public void setGhostSpeed(int id, int ghostSpeed) {
         this.ghostSpeed[id] = ghostSpeed;
@@ -442,16 +438,8 @@ public class GameEngine{
         return inGame;
     }
 
-    public int getTempDirY() {
-        return tempDirY;
-    }
-
     public void setTempDirY(int tempDirY) {
         this.tempDirY = tempDirY;
-    }
-
-    public int getTempDirX() {
-        return tempDirX;
     }
 
     public void setTempDirX(int tempDirX) {
