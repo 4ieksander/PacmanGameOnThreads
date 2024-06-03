@@ -47,6 +47,7 @@ public class GameEngine{
 
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
+    private long elapsedSeconds = 0;
 
     private int currentSpeed = 3;
     private short[] screenData;
@@ -82,7 +83,7 @@ public class GameEngine{
         timerThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                long elapsedSeconds = elapsedTime / 1000;
+                elapsedSeconds = elapsedTime / 1000;
                 long secondsDisplay = elapsedSeconds % 60;
                 long elapsedMinutes = elapsedSeconds / 60;
                 gameRender.setMinutes(elapsedMinutes);
@@ -176,7 +177,6 @@ public class GameEngine{
             }
             i++;
         }
-//            initLevel();
     }
 
     private void death() {
@@ -192,9 +192,8 @@ public class GameEngine{
         if (playerName != null && !playerName.isEmpty()) {
             ScoreManager scoreManager = new ScoreManager();
             List<ScoreEntry> scores = scoreManager.loadScores();
-            scores.add(new ScoreEntry(playerName, score));
+            scores.add(new ScoreEntry(playerName, score, gameFrame.getBoardName(), livesLeft, elapsedSeconds));
             scoreManager.saveScores(scores);
-
         }
     }
 

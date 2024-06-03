@@ -6,16 +6,15 @@ import pl.game.subclasses.ScoreEntry;
 import pl.game.subclasses.Style;
 
 import java.util.List;
-import java.util.Random;
 
 
-public class ScoreWindow extends JFrame {
+public class ScoreFrame extends JFrame {
     private ScoreManager scoreManager = new ScoreManager();
     private DefaultListModel<String> scoreModel = new DefaultListModel<>();
     private JList<String> scoreList = new JList<>(scoreModel);
 
-    public ScoreWindow() {
-        setSize(300, 400);
+    public ScoreFrame() {
+        setSize(600, 400);
         setLayout(new BorderLayout());
 
         JButton showScoresButton = Style.createButton("Show Scores");
@@ -38,6 +37,14 @@ public class ScoreWindow extends JFrame {
     private void displayScores() {
         List<ScoreEntry> scores = scoreManager.loadScores();
         scoreModel.clear();
-        scores.forEach(score -> scoreModel.addElement(score.getPlayerName() + " - " + score.getScore()));
+        scores.forEach(score -> scoreModel.addElement(formatScore(score)));
     }
+
+    private String formatScore(ScoreEntry score) {
+        return String.format(
+                "Player %s -  %d, Lives Left: %d, Time Elapsed: %d seconds, %s, ",
+                score.getPlayerName(), score.getScore(), score.getLivesLeft(), score.getTimeElapsed(), score.getBoardSize()
+        );
+    }
+
 }

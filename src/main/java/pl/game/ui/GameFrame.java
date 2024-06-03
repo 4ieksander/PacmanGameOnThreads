@@ -141,4 +141,7 @@ public class GameFrame extends JFrame implements ActionListener {
             }
         }
     }
+    public String getBoardName(){
+        return board.getName();
+    }
 }

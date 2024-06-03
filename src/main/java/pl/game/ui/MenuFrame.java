@@ -49,7 +49,7 @@ public class MenuFrame extends JFrame {
         JButton highScoreButton = Style.createButton("High Score");
         highScoreButton.addActionListener(e -> {
             EventQueue.invokeLater(() -> {
-                var scoreWindow = new ScoreWindow();
+                var scoreWindow = new ScoreFrame();
                 scoreWindow.setVisible(true);
             });
         });
@@ -72,7 +72,7 @@ public class MenuFrame extends JFrame {
     private void showBoardSizeOptions() {
         JFrame boardSizeFrame = new JFrame("Choose Board Size");
         boardSizeFrame.setSize(350, 400);
-        boardSizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        boardSizeFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         boardSizeFrame.setLocationRelativeTo(null);
 
 

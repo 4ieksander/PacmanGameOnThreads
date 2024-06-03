@@ -6,10 +6,16 @@ public class ScoreEntry implements Serializable {
 
     private String playerName;
     private int score;
+    private String boardSize;
+    private int livesLeft;
+    private long timeElapsed;
 
-    public ScoreEntry(String playerName, int score) {
+    public ScoreEntry(String playerName, int score, String boardSize, int livesLeft, long timeElapsed) {
         this.playerName = playerName;
         this.score = score;
+        this.boardSize  = boardSize;
+        this.livesLeft = livesLeft;
+        this.timeElapsed = timeElapsed;
     }
 
     public String getPlayerName() {
@@ -18,5 +24,17 @@ public class ScoreEntry implements Serializable {
 
     public int getScore() {
         return score;
+    }
+
+    public long getTimeElapsed() {
+        return timeElapsed;
+    }
+
+    public int getLivesLeft() {
+        return livesLeft;
+    }
+
+    public String getBoardSize() {
+        return boardSize;
     }
 }
