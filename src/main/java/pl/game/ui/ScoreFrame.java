@@ -37,13 +37,14 @@ public class ScoreFrame extends JFrame {
     private void displayScores() {
         List<ScoreEntry> scores = scoreManager.loadScores();
         scoreModel.clear();
-        scores.forEach(score -> scoreModel.addElement(formatScore(score)));
-    }
+        for (int i = 0; i < scores.size(); i++) {
+            scoreModel.addElement(formatScore(scores.get(i), i + 1));
+        }    }
 
-    private String formatScore(ScoreEntry score) {
+    private String formatScore(ScoreEntry score, int rank) {
         return String.format(
-                "Player %s -  %d, Lives Left: %d, Time Elapsed: %d seconds, %s, ",
-                score.getPlayerName(), score.getScore(), score.getLivesLeft(), score.getTimeElapsed(), score.getBoardSize()
+                "%d. %s -  %d, %s, %d seconds, %d lives left.",
+                rank, score.getPlayerName(), score.getScore(), score.getBoardSize(), score.getTimeElapsed(), score.getLivesLeft()
         );
     }
 
