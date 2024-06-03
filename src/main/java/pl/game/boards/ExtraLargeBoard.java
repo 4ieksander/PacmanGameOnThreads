@@ -27,6 +27,7 @@ public class ExtraLargeBoard implements IBoard {
         levelData[N_BLOCKS - 1] = 22;
         levelData[N_BLOCKS * (N_BLOCKS - 1)] = 25;
         levelData[N_BLOCKS * N_BLOCKS - 1] = 28;
+
     }
 
     @Override
