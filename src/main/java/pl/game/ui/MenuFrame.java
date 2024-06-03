@@ -30,6 +30,7 @@ public class MenuFrame extends JFrame {
         setVisible(true);
     }
 
+
     private void initUI() {
         cards = new JPanel(new CardLayout());
 
@@ -69,6 +70,7 @@ public class MenuFrame extends JFrame {
         getContentPane().add(cards, BorderLayout.CENTER);
     }
 
+
     private void showBoardSizeOptions() {
         JFrame boardSizeFrame = new JFrame("Choose Board Size");
         boardSizeFrame.setSize(350, 400);
@@ -98,6 +100,7 @@ public class MenuFrame extends JFrame {
         boardSizeFrame.setVisible(true);
     }
 
+
     private void selectBoard(String size) {
         try {
             switch (size) {
@@ -126,6 +129,7 @@ public class MenuFrame extends JFrame {
         }
     }
 
+    
     private void runGame(){
         EventQueue.invokeLater(() -> {
 

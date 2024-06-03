@@ -32,10 +32,18 @@ public class GameFrame extends JFrame implements ActionListener {
         statusPanel = new StatusPanel();
         livesPanel = new LivesPanel();
         gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender, this);
-
         initUI();
     }
+    public void endGame(){
+        gameEngine.stopGameTimer();
+        gameEngine.setInGame(false);
+        gameEngine.saveScore();
+        pacmanMenu.returnToMenu(this);
+    }
 
+    public String getBoardName(){
+        return board.getName();
+    }
 
     private void initUI() {
         JPanel upperPanel = new JPanel(new BorderLayout());
@@ -61,14 +69,6 @@ public class GameFrame extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
 
         initBoard();
-
-    }
-
-    public void endGame(){
-        gameEngine.stopGameTimer();
-        gameEngine.setInGame(false);
-        gameEngine.saveScore();
-        pacmanMenu.returnToMenu(this);
     }
 
     private void initBoard() {
@@ -91,7 +91,6 @@ public class GameFrame extends JFrame implements ActionListener {
 
 
     public class TAdapter extends KeyAdapter {
-
         @Override
         public void keyPressed(KeyEvent e) {
 
@@ -127,8 +126,6 @@ public class GameFrame extends JFrame implements ActionListener {
             }
         }
 
-
-
         @Override
         public void keyReleased(KeyEvent e) {
 
@@ -141,7 +138,5 @@ public class GameFrame extends JFrame implements ActionListener {
             }
         }
     }
-    public String getBoardName(){
-        return board.getName();
-    }
+
 }
