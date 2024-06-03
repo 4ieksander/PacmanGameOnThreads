@@ -1,4 +1,4 @@
-package pl.game.ui;
+package pl.game.ui.components;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +27,6 @@ public class LivesPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         for (int i = 0; i < livesLeft; i++) {
-            // Rysuj ikonę życia dla każdego życia
             lifeIcon.paintIcon(this, g, i * 28 + 8, 5);
         }
     }

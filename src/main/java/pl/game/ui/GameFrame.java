@@ -1,8 +1,11 @@
 package pl.game.ui;
 
-import pl.game.boards.MediumBoard;
 import pl.game.interfaces.IBoard;
-import pl.game.subclasses.ScoreEntry;
+import pl.game.subclasses.GameEngine;
+import pl.game.subclasses.Style;
+import pl.game.ui.components.GameRender;
+import pl.game.ui.components.LivesPanel;
+import pl.game.ui.components.StatusPanel;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -10,43 +13,49 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.List;
-import java.util.Random;
 
 
-public class PacmanGame extends JFrame implements ActionListener {
-    private IBoard board;
-    private GameEngine gameEngine;
-    private StatusPanel statusPanel;
+public class GameFrame extends JFrame implements ActionListener {
     private final GameRender gameRender;
-    private LivesPanel livesPanel;
+    private final MenuFrame pacmanMenu;
+    private final IBoard board;
+    private final GameEngine gameEngine;
+    private final StatusPanel statusPanel;
+    private final LivesPanel livesPanel;
+    private JButton endGameButton;
 
 
-
-    public PacmanGame(IBoard board) {
+    public GameFrame(IBoard board, MenuFrame pacmanMenu){
         this.board = board;
+        this.pacmanMenu = pacmanMenu;
         gameRender = new GameRender(GameEngine.BLOCK_SIZE * board.getN_BLOCKS());
         statusPanel = new StatusPanel();
         livesPanel = new LivesPanel();
-
-
-        gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender);
+        gameEngine = new GameEngine(board.getLevelData(), board.getN_BLOCKS(), statusPanel, livesPanel, gameRender, this);
 
         initUI();
     }
 
 
     private void initUI() {
-        add(livesPanel, BorderLayout.SOUTH);
-        add(statusPanel, BorderLayout.NORTH); // Position it at the top or wherever it fits best
-        add(gameRender, BorderLayout.CENTER);
-        int screen = GameEngine.BLOCK_SIZE * board.getN_BLOCKS();
+        JPanel upperPanel = new JPanel(new BorderLayout());
+        endGameButton = Style.createButton("End Game");
+        endGameButton.setPreferredSize(new Dimension(120, 20));
+        endGameButton.addActionListener(e -> endGame());
 
-        System.out.println(board.getN_BLOCKS());
-        System.out.println(screen);
+        upperPanel.add(livesPanel, BorderLayout.WEST);
+        upperPanel.add(endGameButton, BorderLayout.EAST);
+        upperPanel.setPreferredSize(new Dimension( board.getSCREEN_SIZE(), 30));
+        upperPanel.setBackground(Color.BLACK);
+
+        add(upperPanel, BorderLayout.NORTH);
+        add(statusPanel, BorderLayout.SOUTH);
+        add(gameRender, BorderLayout.CENTER);
+
         setTitle("Pacman - " + board.getName());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(board.getSCREEN_SIZE()+18, board.getSCREEN_SIZE()+100);
+        setSize(board.getSCREEN_SIZE()+15, board.getSCREEN_SIZE()+98);
+        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
         setLayout(new BorderLayout());
@@ -54,9 +63,17 @@ public class PacmanGame extends JFrame implements ActionListener {
         initBoard();
 
     }
+
+    public void endGame(){
+        gameEngine.stopGameTimer();
+        gameEngine.setInGame(false);
+        gameEngine.saveScore();
+        pacmanMenu.returnToMenu(this);
+    }
+
     private void initBoard() {
         System.out.println("Board size set to: " + gameEngine.getScreenSize() + "x" + gameEngine.getScreenSize());
-        addKeyListener(new PacmanGame.TAdapter());
+        addKeyListener(new GameFrame.TAdapter());
         setFocusable(true);
         setBackground(Color.WHITE);
     }
@@ -65,14 +82,6 @@ public class PacmanGame extends JFrame implements ActionListener {
     public void addNotify() {
         super.addNotify();
         gameEngine.initGame();
-    }
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(() -> {
-
-            var ex = new PacmanGame(new MediumBoard());
-            ex.setVisible(true);
-        });
     }
 
     @Override
@@ -132,7 +141,4 @@ public class PacmanGame extends JFrame implements ActionListener {
             }
         }
     }
-
-
-
 }

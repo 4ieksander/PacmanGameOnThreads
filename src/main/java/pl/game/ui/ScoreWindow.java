@@ -16,7 +16,6 @@ public class ScoreWindow extends JFrame {
 
     public ScoreWindow() {
         setSize(300, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         JButton showScoresButton = Style.createButton("Show Scores");
@@ -40,20 +39,5 @@ public class ScoreWindow extends JFrame {
         List<ScoreEntry> scores = scoreManager.loadScores();
         scoreModel.clear();
         scores.forEach(score -> scoreModel.addElement(score.getPlayerName() + " - " + score.getScore()));
-    }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            ScoreWindow frame = new ScoreWindow();
-            frame.setVisible(true);
-
-            String playerName = JOptionPane.showInputDialog(frame, "Enter your name:");
-            if (playerName != null && !playerName.isEmpty()) {
-                int score = new Random().nextInt(100); // Losowy wynik
-                List<ScoreEntry> scores = frame.scoreManager.loadScores();
-                scores.add(new ScoreEntry(playerName, score));
-                frame.scoreManager.saveScores(scores);
-            }
-        });
     }
 }

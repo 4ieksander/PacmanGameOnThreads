@@ -1,4 +1,4 @@
-package pl.game.ui;
+package pl.game.subclasses;
 
 import java.awt.*;
 
@@ -6,16 +6,19 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 
-import pl.game.subclasses.PowerUp;
-import pl.game.subclasses.ScoreManager;
-import pl.game.subclasses.ScoreEntry;
+import pl.game.ui.GameFrame;
+import pl.game.ui.MenuFrame;
+import pl.game.ui.components.GameRender;
+import pl.game.ui.components.LivesPanel;
+import pl.game.ui.components.StatusPanel;
 
 public class GameEngine{
     public static final int BLOCK_SIZE = 24;
 
-    private StatusPanel statusPanel;
+    private final StatusPanel statusPanel;
     private final GameRender gameRender;
-    private LivesPanel livesPanel;
+    private final LivesPanel livesPanel;
+    private final GameFrame gameFrame;
 
 
     private final Random rand = new Random();
@@ -53,13 +56,14 @@ public class GameEngine{
     private Thread timerThread;
 
 
-    public GameEngine(short[] levelData, int N_BLOCKS, StatusPanel statusPanel, LivesPanel livesPanel, GameRender gameRender) {
+    public GameEngine(short[] levelData, int N_BLOCKS, StatusPanel statusPanel, LivesPanel livesPanel, GameRender gameRender, GameFrame gameFrame){
         this.N_BLOCKS = N_BLOCKS;
         this.levelData = levelData;
         this.SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
         this.statusPanel = statusPanel;
         this.livesPanel = livesPanel;
         this.gameRender = gameRender;
+        this.gameFrame = gameFrame;
         gameRender.setGameEngine(this);
 
 //        pack();
@@ -103,8 +107,6 @@ public class GameEngine{
 
     private void initVariables() {
         screenData = new short[N_BLOCKS * N_BLOCKS];
-        System.out.println("Screen Data Length: " + screenData.length);
-        System.out.println("Expected Length: " + (N_BLOCKS * N_BLOCKS));
         scoreMultipler = 1;
         int MAX_GHOSTS = 12;
         ghostPosX = new int[MAX_GHOSTS];
@@ -179,18 +181,21 @@ public class GameEngine{
 
     private void death() {
         livesLeft--;
-        if (livesLeft == 0) {
-            stopGameTimer();
-            inGame = false;
-            String playerName = JOptionPane.showInputDialog(gameRender, "Enter your name:");
-            if (playerName != null && !playerName.isEmpty()) {
-                ScoreManager scoreManager = new ScoreManager();
-                List<ScoreEntry> scores = scoreManager.loadScores();
-                scores.add(new ScoreEntry(playerName, score));
-                scoreManager.saveScores(scores);
-        }
+        if (livesLeft <= 0) {
+            gameFrame.endGame();
         }
         continueLevel();
+    }
+
+    public void saveScore(){
+        String playerName = Style.showStyledInputDialog(gameRender, "Enter your name:");
+        if (playerName != null && !playerName.isEmpty()) {
+            ScoreManager scoreManager = new ScoreManager();
+            List<ScoreEntry> scores = scoreManager.loadScores();
+            scores.add(new ScoreEntry(playerName, score));
+            scoreManager.saveScores(scores);
+
+        }
     }
 
     private void continueLevel() {
@@ -327,7 +332,7 @@ public class GameEngine{
         Thread powerUpGenerator = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(5000);
                     for (int i = 0; i < N_GHOSTS; i++) {
                         if (rand.nextInt(4) == 0) {
                             int posX = ghostPosX[i] / BLOCK_SIZE;
@@ -396,7 +401,7 @@ public class GameEngine{
         this.currentSpeed = currentSpeed;
     }
     public void incresePacmanLifes(){
-        this.livesLeft++;
+        if (livesLeft < 5) this.livesLeft++;
     }
     public void setInvulnerable(Boolean invulnerable){
         this.isInvulnerable = invulnerable;

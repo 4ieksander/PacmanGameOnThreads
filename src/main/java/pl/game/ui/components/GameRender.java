@@ -1,5 +1,6 @@
-package pl.game.ui;
+package pl.game.ui.components;
 
+import pl.game.subclasses.GameEngine;
 import pl.game.subclasses.PowerUp;
 
 import javax.swing.*;

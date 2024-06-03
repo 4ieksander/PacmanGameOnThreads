@@ -1,6 +1,5 @@
 package pl.game.subclasses;
 
-import pl.game.ui.GameEngine;
 import java.util.Random;
 
 public class PowerUp {

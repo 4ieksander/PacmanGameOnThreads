@@ -1,30 +1,33 @@
-package pl.game;
+package pl.game.ui;
 
 import pl.game.boards.*;
-import pl.game.ui.PacmanGame;
 import pl.game.interfaces.IBoard;
 import pl.game.exceptions.BoardDoesNotExistException;
 import pl.game.subclasses.Style;
-import pl.game.ui.ScoreWindow;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PacmanMenu extends JFrame {
+public class MenuFrame extends JFrame {
 
     private IBoard board;
     private JPanel cards; // panel that uses CardLayout
     final static String MENUPANEL = "Menu Panel";
     final static String GAMEPANEL = "Game Panel";
 
-    public PacmanMenu() {
+    public MenuFrame() {
         setTitle("Pacman");
         setSize(300, 200);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // center the window
         initUI();
+    }
+
+    public void returnToMenu(JFrame gameFrame) {
+        gameFrame.dispose();
+        setVisible(true);
     }
 
     private void initUI() {
@@ -91,6 +94,7 @@ public class PacmanMenu extends JFrame {
         }
 
         boardSizeFrame.add(panel);
+        setVisible(false);
         boardSizeFrame.setVisible(true);
     }
 
@@ -125,15 +129,8 @@ public class PacmanMenu extends JFrame {
     private void runGame(){
         EventQueue.invokeLater(() -> {
 
-            var ex = new PacmanGame(board);
+            var ex = new GameFrame(board, this);
             ex.setVisible(true);
         });
     }
-
-
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            PacmanMenu ex = new PacmanMenu();
-            ex.setVisible(true);
-        });}}
+};
