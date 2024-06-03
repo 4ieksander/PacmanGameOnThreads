@@ -94,7 +94,7 @@ public class MenuFrame extends JFrame {
         }
 
         boardSizeFrame.add(panel);
-        setVisible(false);
+        this.setVisible(false);
         boardSizeFrame.setVisible(true);
     }
 

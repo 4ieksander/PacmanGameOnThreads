@@ -7,7 +7,6 @@ import java.util.List;
 import javax.swing.*;
 
 import pl.game.ui.GameFrame;
-import pl.game.ui.MenuFrame;
 import pl.game.ui.components.GameRender;
 import pl.game.ui.components.LivesPanel;
 import pl.game.ui.components.StatusPanel;
@@ -15,46 +14,43 @@ import pl.game.ui.components.StatusPanel;
 public class GameEngine{
     public static final int BLOCK_SIZE = 24;
 
+    private final int PACMAN_SPEED = 6;
+    private final int DEFAULT_GHOST_START_X = 4;
+    private final int DEFAULT_GHOST_START_Y = 4;
+    private final int N_BLOCKS;
+    private int N_GHOSTS = 6;
+    private final int SCREEN_SIZE;
+
+    private final Random rand = new Random();
+    private final short[] levelData;
+    private final int[] validSpeeds = {1, 2, 3, 4, 5, 6};
+
     private final StatusPanel statusPanel;
     private final GameRender gameRender;
     private final LivesPanel livesPanel;
     private final GameFrame gameFrame;
 
-
-    private final Random rand = new Random();
-    private final short[] levelData;
-    private final int SCREEN_SIZE;
-    private final int[] validSpeeds = {1, 2, 3, 4, 5, 6};
-
-    private final int DEFAULT_GHOST_START_X = 4;
-    private final int DEFAULT_GHOST_START_Y = 4;
-
-    private final int PACMAN_SPEED = 6;
-
-
-    private boolean isInvulnerable = false;
-
-
+    private short[] screenData;
+    private long startTime;
+    private Thread timerThread;
     private boolean inGame = false;
     private boolean dying = false;
+    private long elapsedSeconds = 0;
 
-    private int N_GHOSTS = 6;
-    private int livesLeft, score;
+    private int livesLeft;
+    private int score;
     private int scoreMultipler;
+    private boolean isInvulnerable = false;
+    List<PowerUp> activePowerUps = new ArrayList<>();
+
     private int[] ghostMoveOptionX, ghostMoveOptionY;
     private int[] ghostPosX, ghostPosY, ghostDirX, ghostDirY, ghostSpeed;
-    public int N_BLOCKS;
 
     private int pacmanPosX, pacmanPosY, PacmanDirX, PacmanDirY;
     private int tempDirX, tempDirY, viewDirectionX, viewDirectionY;
-    private long elapsedSeconds = 0;
 
-    private int currentSpeed = 3;
-    private short[] screenData;
-    List<PowerUp> activePowerUps = new ArrayList<>();
 
-    private long startTime;
-    private Thread timerThread;
+
 
 
     public GameEngine(short[] levelData, int N_BLOCKS, StatusPanel statusPanel, LivesPanel livesPanel, GameRender gameRender, GameFrame gameFrame){
@@ -127,7 +123,6 @@ public class GameEngine{
         score = 0;
         initLevel();
         N_GHOSTS = 6;
-        currentSpeed = 3;
         startGameTimer();
     }
 
@@ -393,12 +388,6 @@ public class GameEngine{
     }
     public void setGhostSpeed(int id, int ghostSpeed) {
         this.ghostSpeed[id] = ghostSpeed;
-    }
-    public int getCurrentSpeed(){
-        return currentSpeed;
-    }
-    public void setCurrentSpeed(int currentSpeed) {
-        this.currentSpeed = currentSpeed;
     }
     public void incresePacmanLifes(){
         if (livesLeft < 5) this.livesLeft++;
