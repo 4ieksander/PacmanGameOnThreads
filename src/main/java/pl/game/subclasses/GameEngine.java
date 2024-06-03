@@ -193,6 +193,7 @@ public class GameEngine{
             ScoreManager scoreManager = new ScoreManager();
             List<ScoreEntry> scores = scoreManager.loadScores();
             scores.add(new ScoreEntry(playerName, score, gameFrame.getBoardName(), livesLeft, elapsedSeconds));
+            scores.sort(Comparator.comparingInt(ScoreEntry::getScore).reversed());
             scoreManager.saveScores(scores);
         }
     }
