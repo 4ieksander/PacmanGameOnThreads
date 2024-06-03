@@ -9,23 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GameRender extends JPanel {
-    private GameEngine gameEngine;
-    private ImageIcon ghost;
-    private ImageIcon pacmanIcon;
-    private ImageIcon[] pacmanUpIcons;
-    private ImageIcon[] pacmanDownIcons;
-    private ImageIcon[] pacmanLeftIcons;
-    private ImageIcon[] pacmanRightIcons;
-    private Map<String, ImageIcon> powerUpIcons;
-    private long minutes, seconds;
     private final int PAC_ANIM_DELAY = 200;
     private final int PACMAN_IMAGES_COUNT = 4;
-    private int currentImageNumber;
-    private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
     private final Color dotColor = new Color(192, 192, 0);
-    private Color mazeColor;
-    private Rectangle stopButtonRect;
-    private Dimension dimension;
+    private final Color mazeColor;
+    private final Dimension dimension;
+    private GameEngine gameEngine;
+    private ImageIcon ghost;
+    private ImageIcon[] pacmanUpIcons, pacmanDownIcons, pacmanLeftIcons, pacmanRightIcons;
+    private Map<String, ImageIcon> powerUpIcons;
+    private long minutes, seconds;
+    private int currentImageNumber;
 
 
 
@@ -33,8 +27,6 @@ public class GameRender extends JPanel {
         this.loadAndScaleImages();
         mazeColor = new Color(5, 100, 5);
         startAnimation();
-        stopButtonRect = new Rectangle(420 - 150, 30, 100, 50);  // Zmieniając współrzędne x i y, dostosuj do swojego UI
-
         dimension = new Dimension(screenSize + 40, screenSize+40);
 
     }
@@ -43,12 +35,34 @@ public class GameRender extends JPanel {
         drawPacman(g);
         drawPowerUps(g);
         drawMaze(g);
-//        drawScore(g);
     }
 
+    public void drawGhost(Graphics2D g, int x, int y) {
+        float alpha = gameEngine.isInvulnerable() ? 0.5f : 1f;
+        Composite originalComposite = g.getComposite();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        ghost.paintIcon(this, g, x, y);
+        g.setComposite(originalComposite);
+    }
+
+    public void drawPacman(Graphics2D g) {
+        if (gameEngine.getViewDirectionX() == -1) {
+            ImageIcon currentIcon = pacmanLeftIcons[currentImageNumber];
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() - 1, gameEngine.getPacmanPosY());
+        } else if (gameEngine.getViewDirectionX() == 1) {
+            ImageIcon currentIcon = pacmanRightIcons[currentImageNumber];
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() + 1, gameEngine.getPacmanPosY());
+        } else if (gameEngine.getViewDirectionY() == -1) {
+            ImageIcon currentIcon = pacmanUpIcons[currentImageNumber];
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() - 1);
+        } else {
+            ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
+            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() + 1);
+        }}
 
 
-    public void drawMaze(Graphics2D g) {
+
+    private void drawMaze(Graphics2D g) {
         int index = 0;
         for (int y = 0; y < gameEngine.getScreenSize(); y += gameEngine.BLOCK_SIZE) {
             for (int x = 0; x < gameEngine.getScreenSize(); x += gameEngine.BLOCK_SIZE) {
@@ -86,31 +100,6 @@ public class GameRender extends JPanel {
         }
     }
 
-
-    public void drawGhost(Graphics2D g, int x, int y) {
-        float alpha = gameEngine.isInvulnerable() ? 0.5f : 1f;
-        Composite originalComposite = g.getComposite();
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        ghost.paintIcon(this, g, x, y);
-        g.setComposite(originalComposite);
-    }
-
-
-    public void drawPacman(Graphics2D g) {
-        if (gameEngine.getViewDirectionX() == -1) {
-            ImageIcon currentIcon = pacmanLeftIcons[currentImageNumber];
-            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() - 1, gameEngine.getPacmanPosY());
-        } else if (gameEngine.getViewDirectionX() == 1) {
-            ImageIcon currentIcon = pacmanRightIcons[currentImageNumber];
-            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX() + 1, gameEngine.getPacmanPosY());
-        } else if (gameEngine.getViewDirectionY() == -1) {
-            ImageIcon currentIcon = pacmanUpIcons[currentImageNumber];
-            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() - 1);
-        } else {
-            ImageIcon currentIcon = pacmanDownIcons[currentImageNumber];
-            currentIcon.paintIcon(this, g, gameEngine.getPacmanPosX(), gameEngine.getPacmanPosY() + 1);
-        }}
-
     private void drawPowerUps(Graphics2D g) {
         for (PowerUp powerUp : gameEngine.getActivePowerUps()) {
             if (powerUp.isActive()) {
@@ -126,28 +115,7 @@ public class GameRender extends JPanel {
         }
     }
 
-
-    private void drawScore (Graphics2D g){
-
-        int i;
-        String s;
-
-        g.setFont(smallFont);
-        g.setColor(new Color(96, 128, 255));
-        s = "Score: " + gameEngine.getScore();
-        g.drawString(s, gameEngine.getScreenSize() / 2 + 96, gameEngine.getScreenSize() + 16);
-
-        String timeText = String.format("Czas: %02d:%02d", minutes, seconds);
-        g.drawString(timeText, gameEngine.getScreenSize() / 2 - 40, gameEngine.getScreenSize() + 16);
-
-        for (i = 0; i < gameEngine.getLivesLeft(); i++) {
-            pacmanIcon.paintIcon(this, g, i * 28 + 8, gameEngine.getScreenSize() + 1);
-        }
-    }
-
-
-
-    public void showIntroScreen (Graphics2D g){
+    private void showIntroScreen (Graphics2D g){
         g.setColor(new Color(0, 32, 48));
         g.fillRect(50, gameEngine.getScreenSize() / 2 - 30, gameEngine.getScreenSize() - 100, 50);
 
@@ -183,7 +151,6 @@ public class GameRender extends JPanel {
         pacmanDownIcons = loadAndScalePacmanForDirection("down/Down");
         pacmanRightIcons = loadAndScalePacmanForDirection("right/Right");
         pacmanLeftIcons = loadAndScalePacmanForDirection("left/Left");
-        pacmanIcon = pacmanLeftIcons[3];
         powerUpIcons = loadAndScaleBoosterIcons();
     }
 
@@ -233,12 +200,13 @@ public class GameRender extends JPanel {
         Toolkit.getDefaultToolkit().sync();
         g.dispose();
     }
+
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         doDrawing(g);
     }
-
 
 
     public long getMinutes() {
